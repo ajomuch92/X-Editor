@@ -25,7 +25,7 @@
       <h3>Lorem ipsum</h3>
     </MessageCard>
     <Breadcrumb :items="breadcrumbItems"/> -->
-    <CustomTextArea />
+    <Editor lang="php"/>
   </div>
 </template>
 
@@ -40,12 +40,12 @@ import List from './components/List.vue';
 import BoxCard from './components/BoxCard.vue';
 import MessageCard from './components/MessageCard.vue';
 import Breadcrumb from './components/Breadcrumb.vue';
-import CustomTextArea from './components/CustomTextArea.vue';
+import Editor from './components/Editor.vue';
 // import { app } from './exports';
 
 export default {
   name: 'app',
-  components: { Menu, Modal, Slider, Pagination, tabs, tab, List, BoxCard, MessageCard, Breadcrumb, CustomTextArea },
+  components: { Menu, Modal, Slider, Pagination, tabs, tab, List, BoxCard, MessageCard, Breadcrumb, Editor },
   data () {
     return {
       menu_items: [
