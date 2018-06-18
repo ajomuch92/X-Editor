@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar">
     <div class="navbar-brand">
-      <a class="navbar-item">
+      <a class="navbar-item" v-if="hasBrand">
         <slot name="brand"></slot>
       </a>
       <div class="navbar-burger burger" data-target="navbar">
@@ -36,8 +36,11 @@
     props:{
       items:{
         type: Array,
-        default: ()=>[],
         required: true
+      },
+      hasBrand:{
+        type: Boolean,
+        default: false
       }
     },
     mounted(){
@@ -75,12 +78,13 @@
   }
 
   .navbar-item{
-    border-radius: 3px;
+    border-radius: 3px;    
+    background-color: white !important;
+    margin-left: 10px;
   }
 
   .navbar-item:hover{
-    background-color: white !important;
-    border-bottom: solid blue 2px;
+    border-bottom: solid blue 4px;
   }
 
   .navbar-item.has-dropdown.is-hoverable{

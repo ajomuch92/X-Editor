@@ -1,10 +1,7 @@
 <template>
     <div class="swiper-container">
         <div class="swiper-wrapper">
-            <!-- Slides -->
-            <div class="swiper-slide" v-for="(slide,key) in slides" :key="key">
-                <img :src="slide">
-            </div>
+            <slot name="content"></slot>
         </div>
         <div class="swiper-pagination"></div>
         <div class="swiper-button-prev" @click="movePrev"></div>
@@ -18,10 +15,7 @@ import Swiper from 'swiper'
 export default {
     name: 'slider',
     props:{
-        slides:{
-            type: Array,
-            default: ()=>{}
-        }
+        
     },
     data(){
         return{
@@ -48,5 +42,10 @@ export default {
 </script>
 
 <style scoped>
-    
+    .swiper-container {
+      width: 100%;
+      height: 100%;
+      margin-left: auto;
+      margin-right: auto;
+    }
 </style>
