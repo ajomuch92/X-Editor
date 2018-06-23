@@ -14,15 +14,16 @@
     <div id="navbar" class="navbar-menu">
       <div class="navbar-start">
         <div v-for="(item,key) in items" :key="key" class="single-nav">
-          <a v-if="item.isLink" class="navbar-item" :href="item.href">{{item.name}}</a>
+          <!-- <a v-if="item.isLink" class="navbar-item" :href="item.href">{{item.name}}</a> -->
+          <router-link v-if="item.isLink" class="navbar-item" :to="item.href" >{{item.name}}</router-link>
           <div v-else-if="item.isDroppable" class="navbar-item has-dropdown is-hoverable">
             <div class="navbar-link" href="/documentation/overview/start/">
               {{item.name}}
             </div>
             <div class="navbar-dropdown is-boxed">
-              <a class="navbar-item" v-for="(subitem,index) in item.subitems" :key="index" :href="subitem.href">
+              <router-link class="navbar-item" v-for="(subitem,index) in item.subitems" :key="index" :to="subitem.href">
                 {{subitem.name}}
-              </a>
+              </router-link>
             </div>
           </div>
         </div>

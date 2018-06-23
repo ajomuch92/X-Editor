@@ -52,7 +52,7 @@ export default {
               {
                   name: "Inicia sesión",
                   isLink: true,
-                  href: "#"
+                  href: "/login"
               }
           ]
       }
