@@ -1,8 +1,16 @@
 <template>
     <section class="hero is-medium">
         <div class="login-template">
-            <div style="background-color: white; width: 300px; border-radius: 5px">
-                <FormBuilder title="Please, login" accept-button-title="Login" :fields="fields" button-align="Center"/>
+            <div style="background-color: white; width: 400px; border-radius: 5px">
+                <FormBuilder title="Por favor, inicie sesión" accept-button-title="Login" :fields="fields" button-align="Center"/>
+                <div id="social-login">
+                    O inicia sesión con 
+                    <a src="#"><i class="fab fa-facebook-square"></i></a>
+                    <a src="#"><i class="fab fa-google-plus"></i></a>
+                    <a src="#"><i class="fab fa-github"></i></a>
+                    <p>¿No tienes una cuenta? Crea una <a href="#/signup">aquí</a></p>
+                    <p>¿Olvidaste tu contraseña? Recupérala <a href="#/signup">aquí</a></p>
+                </div>
             </div>
         </div>
     </section>
@@ -22,11 +30,11 @@ export default {
                     label: 'Email',
                     placeholder: 'Ingrese su e-mail',
                     type: 'email',
-                    required: true,
+                    isRequired: true,
                     isError: false,
                     messageError: 'El correo electrónico es requerido',
                     value: '',
-                    regex: '',
+                    regex: '[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}',
                     icon: 'fas fa-at'
                 },
                 {
@@ -34,11 +42,10 @@ export default {
                     label: 'Password',
                     placeholder: 'Ingrese su contraseña',
                     type: 'password',
-                    required: true,
+                    isRequired: true,
                     isError: false,
                     messageError: 'El campo de contraseña es requerido',
                     value: '',
-                    regex: '',
                     icon: 'fas fa-key'
                 }
             ]
@@ -65,5 +72,11 @@ export default {
         background-color: white;
         border-radius: 5px;
         box-shadow: 3px;
+    }
+
+    #social-login{
+        padding: 20px;
+        text-align: center;
+        display: block;
     }
 </style>

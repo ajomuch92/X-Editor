@@ -3,18 +3,18 @@
         <h2 class="title is-2">{{title}}</h2>
         <form>
             <div class="field" v-for="(field, key) in fields" :key="key">
-                <Checbox v-if="field.type=='Boolean'" v-model="field.value" :is-error="field.isError" :message-error="field.messageError">{{item.label}}</Checbox>
-                <InputFile v-else-if="field.type=='File'" :file-types="field.fileTypes" :is-error="field.isError" :message-error="field.messageError"></InputFile>
+                <Checbox v-if="field.type=='Boolean'" v-model="field.value" :is-error="field.isError" :message-error="field.messageError">{{field.label}}</Checbox>
+                <InputFile v-else-if="field.type=='File'" :file-types="field.fileTypes" :is-error="field.isError" :message-error="field.messageError">{{field.label}}</InputFile>
                 <InputSelect v-else-if="field.type=='Select'" v-model="field.value" :label="field.label" :options="field.options" :is-multiple="field.isMultiple" :is-error="field.isError" :message-error="field.messageError"></InputSelect>
                 <InputTextArea v-else-if="field.type=='LongText'" v-model="field.value" :placeholder="field.placeholder" :rows="field.rows"  :is-error="field.isError" :message-error="field.messageError"></InputTextArea>
-                <RadioButton v-else-if="field.type=='Radio'" :name="field.name">
-                    <RadioOption v-for="(option,k) in field.option" :key="k">{{option}}</RadioOption>
+                <RadioButton v-else-if="field.type=='Radio'" :label="field.label" :name="field.name">
+                    <RadioOption v-for="(option,k) in field.options" :key="k" :value="option.value" :group-name="field.name">{{option.label}}</RadioOption>
                 </RadioButton>
-                <InputField v-else v-model="field.value" :label="field.label" :placeholder="field.placeholder" :type="field.type" :icon="field.icon"></InputField>
+                <InputField v-else v-model="field.value" :label="field.label" :placeholder="field.placeholder" :type="field.type" :icon="field.icon" :is-error="field.isError" :message-error="field.messageError"></InputField>
             </div>
             <div :class="'field is-grouped ' + setButtonAlign">
                 <div class="control">
-                    <button class="button is-link">{{acceptButtonTitle}}</button>
+                    <button class="button is-info" @click="acceptForm($event)">{{acceptButtonTitle}}</button>
                 </div>
                 <div class="control" v-if="isCancelable">
                     <button class="button is-text">Cancel</button>
@@ -32,6 +32,7 @@ import InputSelect from './InputSelect';
 import InputTextArea from './InputTextArea';
 import RadioButton from './RadioButton';
 import RadioOption from './RadioOption';
+import Vue from 'vue'
 
 export default {
     name: 'FormBuilder',
@@ -74,6 +75,34 @@ export default {
                 case 'Left':
                     return ''
                     break;
+            }
+        }
+    },
+    methods: {
+        acceptForm(event){
+            event.preventDefault();
+            this.setDefaultErrorValues();
+            if(this.validateFields()){
+                this.$emit('form-valid', this.fields);
+            }
+        },
+        validateFields(){
+            var isValidate = true;
+            for(var i = 0; i < this.fields.length; i++){
+                if(this.fields[i].isRequired && !this.fields[i].value) {
+                    isValidate = false;
+                    Vue.set(this.fields[i],'isError', true);
+                } else if(this.fields[i].isRequired && this.fields[i].regex){
+                    var re = new RegExp(this.fields[i].regex,"igm");
+                    isValidate = re.test(this.fields[i].value);
+                    Vue.set(this.fields[i],'isError', !isValidate);
+                }
+            }
+            return isValidate;
+        },
+        setDefaultErrorValues(){
+            for(var i = 0; i < this.fields.length; i++){
+                Vue.set(this.fields[i],'isError', false);
             }
         }
     }

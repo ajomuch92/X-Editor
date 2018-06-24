@@ -30,7 +30,7 @@
                 <div>
                     <h1 class="title">¿Aún no tienes una cuenta?</h1>
                     <h2 class="subtitle">Crea una ahora mismo</h2>
-                    <a class="button is-link">Crear</a>
+                    <a class="button is-link" href="#/signup">Crear</a>
                 </div>
             </div>
           </SliderItem>

@@ -1,5 +1,6 @@
 <template>
     <div class="control">
+        <label :for="name" class="label">{{label}}</label>
         <slot></slot>
     </div>
 </template>
@@ -11,6 +12,10 @@ export default {
         name: {
             type: String,
             required: true
+        },
+        label: {
+            type: String,
+            default: ''
         }
     }
 }
