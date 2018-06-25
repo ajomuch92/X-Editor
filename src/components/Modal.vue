@@ -6,7 +6,7 @@
           <p class="modal-card-title">
             <slot name="header"></slot>
           </p>
-        <button class="delete" aria-label="close" @click="$emit('closeModal')"></button>
+        <button class="delete" aria-label="close" @click="$emit('close-modal')"></button>
         </header>
         <section class="modal-card-body">
           <slot></slot>

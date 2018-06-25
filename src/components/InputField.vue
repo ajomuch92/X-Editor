@@ -2,7 +2,7 @@
     <div class="field">
         <label class="label" v-if="label!=''">{{label}}</label>
         <div class="control" :class="{'has-icons-left': icon!=''}">
-            <input class="input" :class="{'is-danger': isError}" :type="type" :placeholder="placeholder" :value="initialValue" @keypress="valueChanged($event)" @change="valueChanged($event)">
+            <input class="input" :class="{'is-danger': isError}" :type="type" :placeholder="placeholder" @keypress="valueChanged($event)" @change="valueChanged($event)">
             <span class="icon is-small is-left" v-if="icon!=''">
                 <i :class="icon"></i>
             </span>

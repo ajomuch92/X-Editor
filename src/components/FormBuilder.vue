@@ -4,7 +4,7 @@
         <form>
             <div class="field" v-for="(field, key) in fields" :key="key">
                 <Checbox v-if="field.type=='Boolean'" v-model="field.value" :is-error="field.isError" :message-error="field.messageError">{{field.label}}</Checbox>
-                <InputFile v-else-if="field.type=='File'" :file-types="field.fileTypes" :is-error="field.isError" :message-error="field.messageError">{{field.label}}</InputFile>
+                <InputFile v-else-if="field.type=='File'" :file-types="field.fileTypes" :label="field.label" :is-error="field.isError" :message-error="field.messageError">{{field.placeholder}}</InputFile>
                 <InputSelect v-else-if="field.type=='Select'" v-model="field.value" :label="field.label" :options="field.options" :is-multiple="field.isMultiple" :is-error="field.isError" :message-error="field.messageError"></InputSelect>
                 <InputTextArea v-else-if="field.type=='LongText'" v-model="field.value" :placeholder="field.placeholder" :rows="field.rows"  :is-error="field.isError" :message-error="field.messageError"></InputTextArea>
                 <RadioButton v-else-if="field.type=='Radio'" :label="field.label" :name="field.name">
@@ -14,7 +14,8 @@
             </div>
             <div :class="'field is-grouped ' + setButtonAlign">
                 <div class="control">
-                    <button class="button is-info" @click="acceptForm($event)">{{acceptButtonTitle}}</button>
+                    <button class="button is-link" @click="acceptForm($event)">{{acceptButtonTitle}}</button>
+                    <!-- <div class="accept-button" @click="acceptForm($event)">{{acceptButtonTitle}}</div> -->
                 </div>
                 <div class="control" v-if="isCancelable">
                     <button class="button is-text">Cancel</button>
@@ -116,6 +117,17 @@ export default {
     h2{
         color: black !important;
         text-align: center;
+    }
+    .accept-button{
+        border: 1px solid #27ACFF;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 3px;
+        color: white;
+        background-color: #279CFC;
+    }
+    .accept-button:hover{
+        background-color: rgb(19, 144, 247);
     }
 </style>
 

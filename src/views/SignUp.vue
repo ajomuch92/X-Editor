@@ -73,7 +73,7 @@ export default {
                 {
                     name: 'Profile',
                     label: 'Imagen de perfil',
-                    placeholder: 'Seleccione una imagen',
+                    placeholder: 'Seleccionar',
                     type: 'File',
                     fileTypes: 'image/*',
                     isRequired: false,

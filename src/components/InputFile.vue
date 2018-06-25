@@ -1,5 +1,6 @@
 <template>
     <div class="file" :class="{'is-danger': isError}">
+        <label class="label" v-if="label!=''">{{label}}</label>
         <label class="file-label">
             <input class="file-input" type="file" :name="name" :accept="fileTypes" @change="changeInputFile($event)">
             <span class="file-cta">
@@ -23,6 +24,10 @@ export default {
     name: 'InputFile',
     props: {
         name: {
+            type: String,
+            default: ''
+        },
+        label: {
             type: String,
             default: ''
         },
