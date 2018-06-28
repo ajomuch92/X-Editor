@@ -1,7 +1,6 @@
 <template>
-    <div class="dashboard-content">
+    <div class="dashboard">
         <div class="header-dashboard">
-            <h1 class="is-title">Dashboard</h1>
             <nav class="level">
                 <div class="level-left">
                     <div class="level-item">
@@ -16,41 +15,35 @@
                             </p>
                         </div>
                     </div>
-                    <div class="level-item">                    
-                        <button class="button">
-                            <i class="fas fa-plus"></i>
-                        </button>
-                    </div>
                     <div class="level-item">
                         <breadcrumb :items="breadCrumbOptions"/>
                     </div>
                 </div>
                 <div class="level-right">
-                    <i class="fas fa-money-bill-wave-alt" style="font-size: 32px;"></i>
-                    <i class="fas fa-chart-line" style="font-size: 32px;"></i>
-                    <i class="fas fa-users-cog" style="font-size: 32px;"></i>
+                    <i class="my-icon fas fa-users-cog" style="font-size: 32px;"></i>
                 </div>
             </nav>
         </div>
         <div class="content-dashboard">
-            <div class="tile is-ancestor">
-                <div class="tile is-4 is-vertical is-parent">
-                    <div class="tile is-child box">
-                        <p class="title">One</p>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ornare magna eros, eu pellentesque tortor vestibulum ut. Maecenas non massa sem. Etiam finibus odio quis feugiat facilisis.</p>
-                    </div>
-                    <div class="tile is-child box">
-                        <p class="title">Two</p>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ornare magna eros, eu pellentesque tortor vestibulum ut. Maecenas non massa sem. Etiam finibus odio quis feugiat facilisis.</p>
-                    </div>
+            <div class="columns">
+                <div class="column is-one-quarter">
+                    <DropDown name="new-file" title="Nuevo archivo">
+                        <DropDownItem>
+                            <i class="fas fa-file-alt"></i>
+                            Nuevo archivo
+                        </DropDownItem>
+                        <DropDownItem>
+                            <i class="fas fa-folder"></i>
+                            Nuevo carpeta
+                        </DropDownItem>
+                    </DropDown>
+                    <List name="dashboard-options" :items="listOptions"></List>
                 </div>
-                <div class="tile is-parent">
-                    <div class="tile is-child box">
-                        <p class="title">Three</p>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam semper diam at erat pulvinar, at pulvinar felis blandit. Vestibulum volutpat tellus diam, consequat gravida libero rhoncus ut. Morbi maximus, leo sit amet vehicula eleifend, nunc dui porta orci, quis semper odio felis ut quam.</p>
-                        <p>Suspendisse varius ligula in molestie lacinia. Maecenas varius eget ligula a sagittis. Pellentesque interdum, nisl nec interdum maximus, augue diam porttitor lorem, et sollicitudin felis neque sit amet erat. Maecenas imperdiet felis nisi, fringilla luctus felis hendrerit sit amet. Aenean vitae gravida diam, finibus dignissim turpis. Sed eget varius ligula, at volutpat tortor.</p>
-                        <p>Integer sollicitudin, tortor a mattis commodo, velit urna rhoncus erat, vitae congue lectus dolor consequat libero. Donec leo ligula, maximus et pellentesque sed, gravida a metus. Cras ullamcorper a nunc ac porta. Aliquam ut aliquet lacus, quis faucibus libero. Quisque non semper leo.</p>
-                    </div>
+                <div class="column right-container">
+                    <BoxCard user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
+                    <BoxCard user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
+                    <BoxCard user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
+                    <BoxCard user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
                 </div>
             </div>
         </div>
@@ -59,17 +52,48 @@
 
 <script>
 import Breadcrumb from '../components/Breadcrumb';
+import List from '../components/List';
+import DropDown from '../components/DropDown'
+import DropDownItem from '../components/DropDownItem';
+import BoxCard from '../components/BoxCard';
 
 export default {
     name: 'Dashboard',
-    components: { Breadcrumb},
+    components: { Breadcrumb, List, DropDown, DropDownItem, BoxCard},
     data(){
         return {
             breadCrumbOptions: [
                 {
                     link: '#',
-                    text: 'Home',
+                    text: 'Dashboard',
                     icon: 'fas fa-home'
+                }
+            ],
+            listOptions: [
+                {
+                    name: 'my-codes',
+                    icon: 'far fa-hdd',
+                    content: 'Mis códigos'
+                },
+                {
+                    name: 'my-favorites',
+                    icon: 'fas fa-star',
+                    content: 'Mis favoritas'
+                },
+                {
+                    name: 'recycler-bin',
+                    icon: 'fas fa-trash-alt',
+                    content: 'Papelera'
+                },
+                {
+                    name: 'my-bills',
+                    icon: 'far fa-money-bill-alt',
+                    content: 'Mi plan'
+                },
+                {
+                    name: 'my-aportation',
+                    icon: 'fas fa-chart-line',
+                    content: 'Mis gráficas'
                 }
             ]
         }
@@ -78,17 +102,38 @@ export default {
 </script>
 
 <style scoped>
-    i {
+    .my-icon{
         padding-right: 3px;
         cursor: pointer;
-        color: rgb(89, 136, 218);
+        color: #D4EDF7;
     }
 
-    i:hover {
-        color: #306ED8
+    .my-icon:hover {
+        color: #0247FE
     }
 
     .content-dashboard {
-        padding: 5px;
+        padding: 20px;
+        background-color: #D4EDF7;
+        height: -webkit-fill-available;
+    }
+    .header-dashboard{
+        background-color: #347B98;
+        padding: 12px;
+    }
+    .breadcrumb-label {
+        color: #1258DC;
+    }
+    .list{
+        background-color: whitesmoke;
+    }
+
+    .dropdown{
+        margin-left: 10px;
+    }
+
+    .right-container {
+        display: flex;
+        flex-wrap: wrap;
     }
 </style>

@@ -1,5 +1,5 @@
 <template>
-    <div class="breadcrumb">
+    <div class="breadcrumb-items">
         <nav class="breadcrumb" aria-label="breadcrumbs">
             <ul>
                 <li v-for="(item,key) in items" :key="key" :class="{'is-active': key+1==items.length}">
@@ -7,7 +7,7 @@
                         <span class="icon is-small" v-if="item.icon">
                             <i :class="item.icon" aria-hidden="true"></i>
                         </span>
-                        <span>{{item.text}}</span>
+                        <span class="breadcrumb-label">{{item.text}}</span>
                     </a>
                 </li>
             </ul>
@@ -28,7 +28,9 @@ export default {
 </script>
 
 <style scoped>
-
+    .breadcrumb{
+        font-size: 1.2rem !important;
+    }
 </style>
 
 /*

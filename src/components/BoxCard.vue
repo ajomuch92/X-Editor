@@ -43,5 +43,7 @@ export default {
 </script>
 
 <style scoped>
-
+    .box{
+        margin: 3px;
+    }
 </style>
