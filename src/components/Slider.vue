@@ -13,39 +13,63 @@
 <script>
 import Swiper from 'swiper'
 export default {
-    name: 'slider',
-    props:{
-        
+  name: 'slider',
+  props:{
+    autoplay: {
+      type: Boolean,
+      default: false
     },
-    data(){
-        return{
-            swiper: undefined
-        }
+    delayTime: {
+      type: Number,
+      default: 2500
     },
-    mounted(){
-        this.swiper = new Swiper('.swiper-container', {
-            speed: 400,
-            spaceBetween: 100,
-            loop: true
-        });
-    },
-    methods:{
-      moveNext(){
-        this.swiper.slideNext();
-      },
-      movePrev(){
-        this.swiper.slidePrev();
+    isPaginable: {
+      type: Boolean,
+      default: true
+    }
+  },
+  data(){
+    return{
+      swiper: undefined
+    }
+  },
+  mounted(){
+    var config = {
+      speed: 400,
+      spaceBetween: 100,
+      loop: true
+    };
+    if(this.autoplay){
+      config.autoplay = {
+        delay: this.delayTime,
+        disableOnInteraction: false
       }
     }
+    if(this.isPaginable){
+      config.pagination = {
+        el: '.swiper-pagination',
+        clickable: true,
+      };
+    }
+    this.swiper = new Swiper('.swiper-container', config);
+  },
+  methods:{
+    moveNext(){
+      this.swiper.slideNext();
+    },
+    movePrev(){
+      this.swiper.slidePrev();
+    }
+  }
     
 }
 </script>
 
 <style scoped>
-    .swiper-container {
-      width: 100%;
-      height: 100%;
-      margin-left: auto;
-      margin-right: auto;
-    }
+  .swiper-container {
+    width: 100%;
+    height: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
 </style>

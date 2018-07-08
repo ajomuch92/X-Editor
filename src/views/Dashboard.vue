@@ -20,7 +20,7 @@
                     </div>
                 </div>
                 <div class="level-right">
-                    <i class="my-icon fas fa-users-cog" style="font-size: 32px;"></i>
+                    <i class="my-icon fas fa-sign-out-alt" style="font-size: 32px;"></i>
                 </div>
             </nav>
         </div>
@@ -40,10 +40,10 @@
                     <List name="dashboard-options" :items="listOptions"></List>
                 </div>
                 <div class="column right-container">
-                    <BoxCard user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
-                    <BoxCard user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
-                    <BoxCard user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
-                    <BoxCard user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
+                    <BoxCard :icons="iconBoxCard" user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
+                    <BoxCard :icons="iconBoxCard" user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
+                    <BoxCard :icons="iconBoxCard" user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
+                    <BoxCard :icons="iconBoxCard" user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
                 </div>
             </div>
         </div>
@@ -95,7 +95,8 @@ export default {
                     icon: 'fas fa-chart-line',
                     content: 'Mis gráficas'
                 }
-            ]
+            ],
+            iconBoxCard: ['fas fa-edit','fas fa-trash-alt']
         }
     }
 }
@@ -109,7 +110,7 @@ export default {
     }
 
     .my-icon:hover {
-        color: #0247FE
+        color: #090934;
     }
 
     .content-dashboard {
@@ -121,9 +122,9 @@ export default {
         background-color: #347B98;
         padding: 12px;
     }
-    .breadcrumb-label {
+    /* .breadcrumb-label {
         color: #1258DC;
-    }
+    } */
     .list{
         background-color: whitesmoke;
     }
@@ -135,5 +136,11 @@ export default {
     .right-container {
         display: flex;
         flex-wrap: wrap;
+    }
+    span.icon {
+        color: red;
+    }
+    span.breadcrumb-label{
+        color:green;
     }
 </style>

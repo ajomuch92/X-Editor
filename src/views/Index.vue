@@ -1,7 +1,7 @@
 <template>
   <div class="X-editor-app">
       <Menu :items="menuItems"/>
-      <Slider>
+      <Slider :autoplay="true" :delay-time="6000" :is-paginable="true">
           <SliderItem slot="content">
             <div class="div-slide" id="slide1">
                 <div>

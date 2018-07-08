@@ -2,7 +2,7 @@
     <div class="dropdown" :class="{'is-hoverable': isHoverable, 'is-active':isActive}">
         <div class="dropdown-trigger">
             <button class="button" aria-haspopup="true" aria-controls="dropdown-menu3" @click="isActive=!isActive" @blur="isActive=false">
-                <span>{{title}}</span>
+                <span><slot name="title">{{title}}</slot></span>
                 <span class="icon is-small">
                     <i class="fas fa-angle-down" aria-hidden="true"></i>
                 </span>
