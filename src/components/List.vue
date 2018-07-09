@@ -30,6 +30,7 @@ export default {
     methods: {
         onItemSelected(event){
             this.selectedItem = event;
+            this.$emit('item-changed', event);
         }
     }
 }

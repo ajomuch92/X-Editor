@@ -25,7 +25,7 @@ export default {
     props: {
         lang: {
             type: String,
-            default: ''
+            default: 'text'
         },
         emitValue: {
             type: Boolean,

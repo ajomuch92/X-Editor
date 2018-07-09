@@ -4,6 +4,7 @@ import Index from './views/Index'
 import Login from './views/Login'
 import SignUp from './views/SignUp';
 import Dashboard from './views/Dashboard';
+import Editor from './views/EditorView';
 
 Vue.use(Router)
 
@@ -28,6 +29,11 @@ export default new Router({
       path: '/dashboard',
       name: 'Dashboard',
       component: Dashboard
+    },
+    {
+      path: '/editor',
+      name: 'Editor',
+      component: Editor
     }
   ]
 })

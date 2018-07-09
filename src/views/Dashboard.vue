@@ -20,30 +20,117 @@
                     </div>
                 </div>
                 <div class="level-right">
-                    <i class="my-icon fas fa-sign-out-alt" style="font-size: 32px;"></i>
+                    <i class="my-icon fas fa-sign-out-alt" style="font-size: 32px;" @click="logout()"></i>
                 </div>
             </nav>
         </div>
         <div class="content-dashboard">
             <div class="columns">
                 <div class="column is-one-quarter">
-                    <DropDown name="new-file" title="Nuevo archivo">
-                        <DropDownItem>
+                    <DropDown name="new-file-dropdown" title="Nuevo archivo">
+                        <DropDownItem name="new-file" @dropdown-item-selected="dropDownHandler($event)">
                             <i class="fas fa-file-alt"></i>
                             Nuevo archivo
                         </DropDownItem>
-                        <DropDownItem>
+                        <DropDownItem name="new-folder" @dropdown-item-selected="dropDownHandler($event)">
                             <i class="fas fa-folder"></i>
                             Nuevo carpeta
                         </DropDownItem>
                     </DropDown>
-                    <List name="dashboard-options" :items="listOptions"></List>
+                    <List name="dashboard-options" :items="listOptions" @item-changed="optionsHandler($event)"></List>
                 </div>
-                <div class="column right-container">
+                <div class="column right-container" v-if="activePage=='my-codes'">
                     <BoxCard :icons="iconBoxCard" user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
                     <BoxCard :icons="iconBoxCard" user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
                     <BoxCard :icons="iconBoxCard" user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
                     <BoxCard :icons="iconBoxCard" user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
+                </div>
+                <div class="column right-container" v-else-if="activePage=='my-favorites'">
+                    <BoxCard :icons="iconBoxCardFavorites" user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
+                    <BoxCard :icons="iconBoxCardFavorites" user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
+                    <BoxCard :icons="iconBoxCardFavorites" user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
+                    <BoxCard :icons="iconBoxCardFavorites" user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
+                </div>
+                <div class="column right-container" v-else-if="activePage=='my-profile'">
+                    <div class="card">
+                        <div class="card-content">
+                            <div class="media">
+                            <div class="media-left">
+                                <figure class="image is-48x48">
+                                <img src="https://bulma.io/images/placeholders/96x96.png" alt="Placeholder image">
+                                </figure>
+                            </div>
+                            <div class="media-content">
+                                <p class="title is-4">John Smith</p>
+                                <p class="subtitle is-6">@johnsmith</p>
+                            </div>
+                            </div>
+
+                            <div class="content">
+                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus nec iaculis mauris. </p>
+                                <a>Editar foto</a>
+                                <a href="#">Cambiar contrasena</a>
+                                <br>
+                                <time datetime="2016-1-1">11:09 PM - 1 Jan 2016</time>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="column right-container" v-else-if="activePage=='recycler-bin'">
+                    <BoxCard :icons="iconBoxCardRecycler" user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
+                    <BoxCard :icons="iconBoxCardRecycler" user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
+                    <BoxCard :icons="iconBoxCardRecycler" user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
+                    <BoxCard :icons="iconBoxCardRecycler" user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
+                </div>
+                <div class="column right-container" v-else-if="activePage=='my-bills'">
+                     <div class="card">
+                        <div class="card-content">
+                            <div class="media">
+                                <div class="media-content">
+                                    <p class="title is-4">Gratuito</p>
+                                </div>
+                            </div>
+                            <div class="content">
+                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                                Phasellus nec iaculis mauris.</p>
+                                <a class="button is-info" disabled>Comprar</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-content">
+                            <div class="media">
+                                <div class="media-content">
+                                    <p class="title is-4">Plan 1</p>
+                                </div>
+                            </div>
+                            <div class="content">
+                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                                Phasellus nec iaculis mauris.</p>
+                                <a class="button is-info">Comprar</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-content">
+                            <div class="media">
+                                <div class="media-content">
+                                    <p class="title is-4">Plan 2</p>
+                                </div>
+                            </div>
+                            <div class="content">
+                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                                Phasellus nec iaculis mauris.</p>
+                                <a class="button is-info">Comprar</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="column right-container" v-else-if="activePage=='my-aportations'">
+                    Graficos
+                </div>
+                <div class="column right-container" v-else>
+                    <h1 class="title">Bienvenido a tu plataforma</h1>
                 </div>
             </div>
         </div>
@@ -78,7 +165,12 @@ export default {
                 {
                     name: 'my-favorites',
                     icon: 'fas fa-star',
-                    content: 'Mis favoritas'
+                    content: 'Mis favoritos'
+                },
+                {
+                    name: 'my-profile',
+                    icon: 'fas fa-user-circle',
+                    content: 'Mi perfil'
                 },
                 {
                     name: 'recycler-bin',
@@ -91,18 +183,34 @@ export default {
                     content: 'Mi plan'
                 },
                 {
-                    name: 'my-aportation',
+                    name: 'my-aportations',
                     icon: 'fas fa-chart-line',
                     content: 'Mis gráficas'
                 }
             ],
-            iconBoxCard: ['fas fa-edit','fas fa-trash-alt']
+            iconBoxCard: ['fas fa-edit','fas fa-trash-alt', 'far fa-star'],
+            iconBoxCardFavorites: ['fas fa-edit','fas fa-trash-alt', 'fas fa-star'],
+            iconBoxCardRecycler: ['fas fa-undo','fas fa-trash'],
+            activePage: ''
+        }
+    },
+    methods: {
+        dropDownHandler(value){
+            if(value == 'new-file'){
+                window.location.href = '#/editor'
+            }
+        },
+        optionsHandler(event){
+            this.activePage = event;
+        },
+        logout(){
+            window.location.href = '#/'
         }
     }
 }
 </script>
 
-<style scoped>
+<style>
     .my-icon{
         padding-right: 3px;
         cursor: pointer;
@@ -136,11 +244,5 @@ export default {
     .right-container {
         display: flex;
         flex-wrap: wrap;
-    }
-    span.icon {
-        color: red;
-    }
-    span.breadcrumb-label{
-        color:green;
     }
 </style>
