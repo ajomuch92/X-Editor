@@ -71,7 +71,6 @@
                                 <a>Editar foto</a>
                                 <a href="#">Cambiar contrasena</a>
                                 <br>
-                                <time datetime="2016-1-1">11:09 PM - 1 Jan 2016</time>
                             </div>
                         </div>
                     </div>
@@ -127,7 +126,7 @@
                     </div>
                 </div>
                 <div class="column right-container" v-else-if="activePage=='my-aportations'">
-                    Graficos
+                    <LinearGraph :title="graphTitle" :labels="labels" :data="dataGraph" :border-color="color"/>
                 </div>
                 <div class="column right-container" v-else>
                     <h1 class="title">Bienvenido a tu plataforma</h1>
@@ -143,10 +142,11 @@ import List from '../components/List';
 import DropDown from '../components/DropDown'
 import DropDownItem from '../components/DropDownItem';
 import BoxCard from '../components/BoxCard';
+import LinearGraph from '../components/LinearGraph'
 
 export default {
     name: 'Dashboard',
-    components: { Breadcrumb, List, DropDown, DropDownItem, BoxCard},
+    components: { Breadcrumb, List, DropDown, DropDownItem, BoxCard, LinearGraph},
     data(){
         return {
             breadCrumbOptions: [
@@ -191,7 +191,11 @@ export default {
             iconBoxCard: ['fas fa-edit','fas fa-trash-alt', 'far fa-star'],
             iconBoxCardFavorites: ['fas fa-edit','fas fa-trash-alt', 'fas fa-star'],
             iconBoxCardRecycler: ['fas fa-undo','fas fa-trash'],
-            activePage: ''
+            activePage: '',
+            graphTitle: 'Mis aportaciones',
+            labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio'],
+            dataGraph: [0, 10, 5, 2, 20, 30, 45],
+            color: 'rgb(52, 123, 152)',
         }
     },
     methods: {

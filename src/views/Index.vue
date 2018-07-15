@@ -89,7 +89,7 @@ export default {
         background-image: url('../assets/beverage-black-coffee-business-33972.jpg');
     }
     h1{
-        color: brown !important;
+        color: #1258DC!important;
         font-size: 3em !important;
     }
     h2{
