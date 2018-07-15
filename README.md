@@ -1,4 +1,4 @@
-# x-editor
+# X Code
 
 > A Vue.js project
 
