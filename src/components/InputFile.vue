@@ -2,7 +2,7 @@
     <div class="file" :class="{'is-danger': isError}">
         <label class="label" v-if="label!=''">{{label}}</label>
         <label class="file-label">
-            <input class="file-input" type="file" :name="name" :accept="fileTypes" @change="changeInputFile($event)">
+            <input ref="input" class="file-input" type="file" :name="name" :accept="fileTypes" @change="changeInputFile($event)">
             <span class="file-cta">
                 <span class="file-icon">
                     <i class="fas fa-upload"></i>
@@ -20,8 +20,13 @@
 </template>
 
 <script>
+import _ from 'lodash';
 export default {
     name: 'InputFile',
+    model: {
+        prop: 'value',
+        event: 'input-file-change'
+    },
     props: {
         name: {
             type: String,
@@ -42,23 +47,41 @@ export default {
         fileTypes: {
             type: String,
             default: ''
+        },
+        value: {
+            type: Object,
+            default: ()=>{}
         }
     },
     data(){
         return {
             fileName: '',
-            file: undefined
+            size: 0,
+            reader: new FileReader()
         }
+    },
+    watch: {
+        value: function (newVal) {
+            if(_.isEmpty(newVal)){
+                this.$refs.input.value = '';
+                this.fileName = '';
+            }
+        }
+    },
+    created(){
+        this.reader.addEventListener('load', () => {
+            this.$emit('input-file-change', {
+                uri: this.reader.result,
+                name: this.fileName,
+                size: this.size
+            });
+        }, false);
     },
     methods: {
         changeInputFile(event){
-            var reader = new FileReader();
-            // reader.onload = function(){
-            //     var output = document.getElementById('output_image');
-            //     output.src = reader.result;
-            // }
-            // reader.readAsDataURL(event.target.files[0]);
             this.fileName = event.target.files[0].name;
+            this.size = event.target.files[0].size;
+            this.reader.readAsDataURL(event.target.files[0]);
         }
     }
 }

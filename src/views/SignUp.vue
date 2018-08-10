@@ -2,7 +2,8 @@
     <section class="hero is-medium">
         <div class="signup-template">
             <div style="background-color: white; width: 500px; border-radius: 5px">
-                <FormBuilder title="Crear una nueva cuenta" accept-button-title="Create" :fields="fields" button-align="Right"/>
+                <FormBuilder title="Crear una nueva cuenta" accept-button-title="Create" :fields="fields" button-align="Right" :clean-fields="cleanFields" @form-valid="register($event)"/>
+                <Notification name="login-notification" :type="notificationType" v-if="showNotification" @close-notification="showNotification=false">{{notificationMessage}}</Notification>
                 <div id="social-login">
                     O regístrate con
                     <a src="#"><i class="fab fa-facebook-square"></i></a>
@@ -17,9 +18,13 @@
 
 <script>
 import FormBuilder from '../components/FormBuilder';
+import Notification from '../components/Notification';
+import {client} from '../client';
+import _ from 'lodash';
+
 export default {
     name: 'SignUp',
-    components: { FormBuilder},
+    components: {FormBuilder, Notification},
     data(){
         return {
             fields: [
@@ -78,9 +83,35 @@ export default {
                     fileTypes: 'image/*',
                     isRequired: false,
                     isError: false,
-                    value: '',
+                    value: {},
                 }
-            ]
+            ],
+            showNotification: false,
+            notificationType: 'is-primary',
+            notificationMessage: '',
+            cleanFields: false
+        }
+    },
+    methods: {
+        register(event){
+            let user = {};
+            _.forEach(event, (element, key) => {
+                user[element.name.toLowerCase()] = element.value;
+            });
+            user['tipo_usuario'] = '5b67841a6a03930b84d527ff';
+            client.service('users').create(user)
+                .then(r => {
+                    this.notificationMessage = 'Usuario registrado con éxito. Ya puede iniciar sesión';
+                    this.showNotification = true;
+                    this.notificationType = 'is-primary';
+                    this.cleanFields = true;
+                })
+                .catch(e => {
+                    this.notificationMessage = 'Error al crear usuario: correo ya registrado.';
+                    this.showNotification = true;
+                    this.notificationType = 'is-danger';
+                });
+            this.cleanFields = false;
         }
     }
 }

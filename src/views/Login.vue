@@ -2,7 +2,8 @@
     <section class="hero is-medium">
         <div class="login-template">
             <div style="background-color: white; width: 400px; border-radius: 5px">
-                <FormBuilder title="Por favor, inicie sesión" accept-button-title="Login" :fields="fields" button-align="Center" @form-valid="login()"/>
+                <FormBuilder title="Por favor, inicie sesión" accept-button-title="Login" :fields="fields" button-align="Center" :clean-fields="cleanFields" @form-valid="login($event)"/>
+                <Notification name="login-notification" :type="notificationType" v-if="showNotification" @close-notification="showNotification=false">{{notificationMessage}}</Notification>                
                 <div id="social-login">
                     O inicia sesión con 
                     <a src="#"><i class="fab fa-facebook-square"></i></a>
@@ -25,10 +26,14 @@
 import FormBuilder from '../components/FormBuilder';
 import Modal from '../components/Modal';
 import InputField from '../components/InputField';
+import Notification from '../components/Notification';
+import {client} from '../client';
+import {user} from '../classes/user';
+import _ from 'lodash';
 
 export default {
     name: 'Login',
-    components: {FormBuilder, Modal, InputField},
+    components: {FormBuilder, Modal, InputField, Notification},
     data(){
         return {
             fields: [
@@ -58,12 +63,40 @@ export default {
             ],
             showModal: false,
             recoverMail: '',
-            validMail: false
+            validMail: false,
+            showNotification: false,
+            notificationType: 'is-danger',
+            notificationMessage: 'Correo o contraseña incorrecta.',
+            cleanFields: false
         }
     },
+    mounted(){
+
+    },
     methods: {
-        login(){
-            window.location.href = '#/dashboard'
+        login(event){
+            let fields = {}
+            _.forEach(event, (element, key) => {
+                fields[element.name.toLowerCase()] = element.value;
+            });
+            let payload = {
+                strategy : 'local',
+                email: fields.email,
+                password: fields.password
+            };
+            client.authenticate(payload)
+                .then(r => {
+                    client.service('users').find({query: {email: payload.email}})
+                        .then(u => {
+                            user.setUser(u.data[0]);
+                            localStorage.setItem('x_code_id',u.data[0]._id);
+                            window.location.href = '#/dashboard';
+                        })
+                })
+                .catch(error => {
+                    this.notificationMessage = 'Correo o contraseña incorrecta.';
+                    this.showNotification = true;
+                });
         }
     }
 }

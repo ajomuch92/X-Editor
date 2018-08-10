@@ -4,7 +4,7 @@
         <form>
             <div class="field" v-for="(field, key) in fields" :key="key">
                 <Checbox v-if="field.type=='Boolean'" v-model="field.value" :is-error="field.isError" :message-error="field.messageError">{{field.label}}</Checbox>
-                <InputFile v-else-if="field.type=='File'" :file-types="field.fileTypes" :label="field.label" :is-error="field.isError" :message-error="field.messageError">{{field.placeholder}}</InputFile>
+                <InputFile v-else-if="field.type=='File'" v-model="field.value" :file-types="field.fileTypes" :label="field.label" :is-error="field.isError" :message-error="field.messageError">{{field.placeholder}}</InputFile>
                 <InputSelect v-else-if="field.type=='Select'" v-model="field.value" :label="field.label" :options="field.options" :is-multiple="field.isMultiple" :is-error="field.isError" :message-error="field.messageError"></InputSelect>
                 <InputTextArea v-else-if="field.type=='LongText'" v-model="field.value" :placeholder="field.placeholder" :rows="field.rows"  :is-error="field.isError" :message-error="field.messageError"></InputTextArea>
                 <RadioButton v-else-if="field.type=='Radio'" :label="field.label" :name="field.name">
@@ -33,7 +33,8 @@ import InputSelect from './InputSelect';
 import InputTextArea from './InputTextArea';
 import RadioButton from './RadioButton';
 import RadioOption from './RadioOption';
-import Vue from 'vue'
+import Vue from 'vue';
+import _ from 'lodash';
 
 export default {
     name: 'FormBuilder',
@@ -59,9 +60,9 @@ export default {
             type: String,
             default: 'Center'
         },
-        service: {
-            type: String,
-            default: ''
+        cleanFields: {
+            type: Boolean,
+            default: false
         }
     },
     computed: {
@@ -79,12 +80,26 @@ export default {
             }
         }
     },
+    watch: {
+        cleanFields: function(newVal){
+            if(newVal){
+                this.clearFields();
+            }
+        }
+    },
     methods: {
         acceptForm(event){
             event.preventDefault();
             this.setDefaultErrorValues();
             if(this.validateFields()){
-                this.$emit('form-valid', this.fields);
+                let fields = _.map(this.fields, field => {
+                    return {
+                        name: field.name,
+                        value: field.value
+                    }
+                });
+                // this.clearFields();
+                this.$emit('form-valid', fields);
             }
         },
         validateFields(){
@@ -104,6 +119,15 @@ export default {
         setDefaultErrorValues(){
             for(var i = 0; i < this.fields.length; i++){
                 Vue.set(this.fields[i],'isError', false);
+            }
+        },
+        clearFields(){
+            for(var i = 0; i < this.fields.length; i++){
+                if(_.isObject(this.fields[i].value)){
+                    Vue.set(this.fields[i],'value', {});
+                } else {
+                    Vue.set(this.fields[i],'value', '');
+                }
             }
         }
     }

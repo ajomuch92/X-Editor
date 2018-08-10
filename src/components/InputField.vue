@@ -2,7 +2,7 @@
     <div class="field">
         <label class="label" v-if="label!=''">{{label}}</label>
         <div class="control" :class="{'has-icons-left': icon!=''}">
-            <input class="input" :class="{'is-danger': isError}" :type="type" :placeholder="placeholder" @keypress="valueChanged($event)" @change="valueChanged($event)">
+            <input ref="input" class="input" :class="{'is-danger': isError}" :type="type" :placeholder="placeholder" @keypress="valueChanged($event)" @change="valueChanged($event)">
             <span class="icon is-small is-left" v-if="icon!=''">
                 <i :class="icon"></i>
             </span>
@@ -35,10 +35,6 @@ export default {
             type: String,
             default: ''
         },
-        initialValue: {
-            type: String,
-            default: ''
-        },
         isError: {
             type: Boolean,
             default: false
@@ -54,7 +50,13 @@ export default {
     },
     data(){
         return {
-            currentValue: ''
+        }
+    },
+    watch: {
+        value: function (newVal) {
+            if(newVal.length == 0){
+                this.$refs.input.value = '';
+            }
         }
     },
     methods :{

@@ -142,7 +142,9 @@ import List from '../components/List';
 import DropDown from '../components/DropDown'
 import DropDownItem from '../components/DropDownItem';
 import BoxCard from '../components/BoxCard';
-import LinearGraph from '../components/LinearGraph'
+import LinearGraph from '../components/LinearGraph';
+import {client} from '../client';
+import {user} from '../classes/user';
 
 export default {
     name: 'Dashboard',
@@ -196,7 +198,21 @@ export default {
             labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio'],
             dataGraph: [0, 10, 5, 2, 20, 30, 45],
             color: 'rgb(52, 123, 152)',
+            user: '',
+            fileList: []
         }
+    },
+    created(){
+        client.authenticate()
+            .then(r => {
+                this.user = localStorage.getItem('x_code_id');
+            })
+            .catch(e => {
+                window.location.href = '#/login';
+            });
+    },
+    mounted(){
+        
     },
     methods: {
         dropDownHandler(value){

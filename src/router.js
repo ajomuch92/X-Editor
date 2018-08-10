@@ -5,8 +5,10 @@ import Login from './views/Login'
 import SignUp from './views/SignUp';
 import Dashboard from './views/Dashboard';
 import Editor from './views/EditorView';
+import AsyncMethods from 'vue-async-methods';
 
-Vue.use(Router)
+Vue.use(Router);
+Vue.use(AsyncMethods);
 
 export default new Router({
   routes: [
