@@ -36,6 +36,12 @@ export default new Router({
       path: '/editor',
       name: 'Editor',
       component: Editor
+    },
+    ,
+    {
+      path: '/editor/:file_id',
+      name: 'Editor',
+      component: Editor
     }
   ]
 })

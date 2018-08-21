@@ -40,16 +40,10 @@
                     <List name="dashboard-options" :items="listOptions" @item-changed="optionsHandler($event)"></List>
                 </div>
                 <div class="column right-container" v-if="activePage=='my-codes'">
-                    <BoxCard :icons="iconBoxCard" user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
-                    <BoxCard :icons="iconBoxCard" user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
-                    <BoxCard :icons="iconBoxCard" user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
-                    <BoxCard :icons="iconBoxCard" user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
+                    <BoxCard v-for="(file, key) in fileList" :key="key" :icons="iconBoxCard" :name="file._id" :user="file.usuario.name" :img="file.tipo_archivo.icon"  :date="file.creado" :description="file.nombre" @box-card-action-selected="fileListHandler($event)"/>
                 </div>
                 <div class="column right-container" v-else-if="activePage=='my-favorites'">
-                    <BoxCard :icons="iconBoxCardFavorites" user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
-                    <BoxCard :icons="iconBoxCardFavorites" user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
-                    <BoxCard :icons="iconBoxCardFavorites" user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
-                    <BoxCard :icons="iconBoxCardFavorites" user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
+                    <BoxCard v-for="(file, key) in favoriteFiles" :key="key" :icons="iconBoxCardFavorites" :name="file._id" :user="file.usuario.name" :img="file.tipo_archivo.icon"  :date="file.creado" :description="file.nombre" @box-card-action-selected="favoriteFilesHandler($event)"/>
                 </div>
                 <div class="column right-container" v-else-if="activePage=='my-profile'">
                     <div class="card">
@@ -57,29 +51,27 @@
                             <div class="media">
                             <div class="media-left">
                                 <figure class="image is-48x48">
-                                <img src="https://bulma.io/images/placeholders/96x96.png" alt="Placeholder image">
+                                    <img :src="currentUser.imagen.uri" alt="Placeholder image">
                                 </figure>
                             </div>
                             <div class="media-content">
-                                <p class="title is-4">John Smith</p>
-                                <p class="subtitle is-6">@johnsmith</p>
+                                <p class="title is-4">{{currentUser.name}}</p>
+                                <p class="subtitle is-6">@{{getUserName}}</p>
                             </div>
                             </div>
 
                             <div class="content">
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus nec iaculis mauris. </p>
+                                <p>{{getRegisterDate}}</p>
                                 <a>Editar foto</a>
                                 <a href="#">Cambiar contrasena</a>
+                                <a href="#">Eliminar cuentas</a>                                
                                 <br>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="column right-container" v-else-if="activePage=='recycler-bin'">
-                    <BoxCard :icons="iconBoxCardRecycler" user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
-                    <BoxCard :icons="iconBoxCardRecycler" user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
-                    <BoxCard :icons="iconBoxCardRecycler" user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
-                    <BoxCard :icons="iconBoxCardRecycler" user="Aarón" img="src/assets/javascript.png" user-name="ajomuch" date="27-6-2018" description="A common file"/>
+                    <BoxCard v-for="(file, key) in deletedFiles" :key="key" :icons="iconBoxCardRecycler" :name="file._id" :user="file.usuario.name" :img="file.tipo_archivo.icon"  :date="file.creado" :description="file.nombre" @box-card-action-selected="deletedFilesHandler($event)"/>
                 </div>
                 <div class="column right-container" v-else-if="activePage=='my-bills'">
                      <div class="card">
@@ -145,6 +137,7 @@ import BoxCard from '../components/BoxCard';
 import LinearGraph from '../components/LinearGraph';
 import {client} from '../client';
 import {user} from '../classes/user';
+import _ from 'lodash';
 
 export default {
     name: 'Dashboard',
@@ -199,20 +192,43 @@ export default {
             dataGraph: [0, 10, 5, 2, 20, 30, 45],
             color: 'rgb(52, 123, 152)',
             user: '',
-            fileList: []
+            fileList: [],
+            favoriteFiles: [],
+            deletedFiles: [],
+            currentUser: {}
         }
     },
-    created(){
+    mounted(){
         client.authenticate()
             .then(r => {
                 this.user = localStorage.getItem('x_code_id');
+                client.service('archivos').find({query: {id_usuario: this.user, id_estado: '5b78c6ed72160b0bbc8b560e'}}).then(response => {
+                    this.fileList = response.data;
+                });
+                client.service('archivos').find({query: {id_usuario: this.user, id_estado: '5b7a282f725748337c4aa84e'}}).then(response => {
+                    this.favoriteFiles = response.data;
+                });
+                client.service('archivos').find({query: {id_usuario: this.user, id_estado: '5b78c70b72160b0bbc8b560f'}}).then(response => {
+                    this.deletedFiles = response.data;
+                });
+                client.service('users').get(this.user).then(user => {
+                    this.currentUser = user;
+                })
             })
             .catch(e => {
                 window.location.href = '#/login';
             });
     },
-    mounted(){
-        
+    computed: {
+        getUserName: function(){
+            let email = this.currentUser.email;
+            return email.split('@')[0];
+        },
+        getRegisterDate: function(){
+            let date = new Date(this.currentUser.createdAt);
+            let registerDate = `${date.getDate()}-${date.getMonth()}-${date.getFullYear()}`;
+            return registerDate;
+        }
     },
     methods: {
         dropDownHandler(value){
@@ -224,7 +240,65 @@ export default {
             this.activePage = event;
         },
         logout(){
-            window.location.href = '#/'
+            client.logout().then(r => {
+                window.location.href = '#/'
+            }).catch(console.log);
+        },
+        fileListHandler(event){
+            if(event.action == 'far fa-star'){
+                client.service('archivos').patch(event.name, {id_estado: '5b7a282f725748337c4aa84e'}).then(response => {
+                    let id = response._id;
+                    let index = _.findIndex(this.fileList, f => { return f._id == id});
+                    let file = _.find(this.fileList, f => { return f._id == id});
+                    this.fileList.splice(index, 1);
+                    this.favoriteFiles.push(file);
+                });
+            } else if(event.action == 'fas fa-trash-alt'){
+                client.service('archivos').patch(event.name, {id_estado: '5b78c70b72160b0bbc8b560f'}).then(response => {
+                    let id = response._id;
+                    let index = _.findIndex(this.fileList, f => { return f._id == id});
+                    let file = _.find(this.fileList, f => { return f._id == id});
+                    this.fileList.splice(index, 1);
+                    this.deletedFiles.push(file);
+                });
+            }
+        },
+        favoriteFilesHandler(event){
+            if(event.action == 'fas fa-star'){
+                client.service('archivos').patch(event.name, {id_estado: '5b78c6ed72160b0bbc8b560e'}).then(response => {
+                    let id = response._id;
+                    let index = _.findIndex(this.favoriteFiles, f => { return f._id == id});
+                    let file = _.find(this.favoriteFiles, f => { return f._id == id});
+                    this.favoriteFiles.splice(index, 1);
+                    this.fileList.push(file);
+                });
+            } else if(event.action == 'fas fa-trash-alt'){
+                client.service('archivos').patch(event.name, {id_estado: '5b78c70b72160b0bbc8b560f'}).then(response => {
+                    let id = response._id;
+                    let index = _.findIndex(this.favoriteFiles, f => { return f._id == id});
+                    let file = _.find(this.favoriteFiles, f => { return f._id == id});
+                    this.favoriteFiles.splice(index, 1);
+                    this.deletedFiles.push(file);
+                });
+            }
+        },
+        deletedFilesHandler(event){
+            if(event.action == 'fas fa-undo'){
+                client.service('archivos').patch(event.name, {id_estado: '5b78c6ed72160b0bbc8b560e'}).then(response => {
+                    let id = response._id;
+                    let index = _.findIndex(this.deletedFiles, f => { return f._id == id});
+                    let file = _.find(this.deletedFiles, f => { return f._id == id});
+                    this.deletedFiles.splice(index, 1);
+                    this.fileList.push(file);
+                });
+            } else if(event.action == 'fas fa-trash'){
+                client.service('archivos').patch(event.name, {id_estado: '5b78c71272160b0bbc8b5610'}).then(response => {
+                    let id = response._id;
+                    let index = _.findIndex(this.deletedFiles, f => { return f._id == id});
+                    let file = _.find(this.deletedFiles, f => { return f._id == id});
+                    this.deletedFiles.splice(index, 1);
+                });
+            }
         }
     }
 }

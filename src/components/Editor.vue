@@ -22,14 +22,18 @@
 
 export default {
     name: 'Editor',
+    model: {
+        prop: 'value',
+        event: 'editor-change'
+    },
     props: {
         lang: {
             type: String,
             default: 'text'
         },
-        emitValue: {
-            type: Boolean,
-            default: false
+        value: {
+            type: Object,
+            default: () => {}
         }
     },
     data(){
@@ -146,13 +150,21 @@ export default {
         this.editor = ace.edit('code-editor');
         this.editor.setTheme(this.themeString);
         this.editor.session.setMode('ace/mode/'+this.lang);
+        this.editor.on('change', (e) => {
+            let value = this.editor.getValue();
+            let session = this.editor.getSession();
+            let extension = session.$modeId.split('/')[2];
+            this.$emit('editor-change', {
+                value: value,
+                extension
+            });
+        });
     },
-    watch: {
-        emitValue(newVal){
-            if(newVal){
-                this.$emit('get-editor-value',this.editor.getValue());
-            }
-        }
+    created(){
+        this.$emit('editor-change', {
+            value: '',
+            extension: 'text'
+        });
     },
     methods: {
         setTheme(){

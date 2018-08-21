@@ -16,7 +16,7 @@
                 </div>
                 <nav class="level is-mobile" v-if="icons.length>0">
                     <div class="level-left">
-                        <a class="level-item" v-for="(icon,key) in icons" :key="key">
+                        <a class="level-item" v-for="(icon,key) in icons" :key="key" @click="actionSelected(icon)">
                             <span class="icon is-small">
                                 <i :class="icon" aria-hidden="true"></i>
                             </span>
@@ -32,6 +32,9 @@
 export default {
     name: 'BoxCard',
     props: {
+        name: {
+            type: String
+        },
         img: {
             type: String
         },
@@ -50,6 +53,11 @@ export default {
         icons: {
             type: Array,
             default: ()=>[]
+        }
+    },
+    methods: {
+        actionSelected(icon){
+            this.$emit('box-card-action-selected', {action: icon, name: this.name});
         }
     }
 }
