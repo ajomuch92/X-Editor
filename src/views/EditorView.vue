@@ -9,6 +9,7 @@
                 </div>
             </nav>
         </div>
+        <Notification v-if="showNotification">{{messageNotification}}</Notification>
         <div class="content-dashboard">
             <div class="columns">                    
                 <div class="column">
@@ -17,10 +18,10 @@
                         <i class="fas fa-cut"></i>    
                         <i class="fas fa-paste"></i>    
                         <i class="far fa-save" @click="showSaveModal()"></i>    
-                        <i class="fas fa-download"></i>    
+                        <i class="fas fa-download" @click="downloadFile()"></i>    
                         <i class="far fa-eye"></i>
                     </div>
-                    <Editor v-model="editorValue"/>
+                    <Editor :value="valueEditor" @editor-change="editorHandler($event)"/>
                 </div>
                 <Modal :is-active="showModal" @close-modal="showModal=false">
                     <h2 slot="header">Guardar archivo</h2>
@@ -39,13 +40,15 @@ import Editor from '../components/Editor';
 import Modal from '../components/Modal';
 import Dropdown from '../components/Dropdown';
 import InputField from '../components/InputField';
+import Notification from '../components/FloatNotification';
 import {client} from '../client';
 import {user} from '../classes/user';
 import _ from 'lodash';
+import FileSaver from 'file-saver';
 
 export default {
     name: 'Dashboard',
-    components: { Breadcrumb, Editor, Modal, InputField, Dropdown},
+    components: { Breadcrumb, Editor, Modal, InputField, Dropdown, Notification},
     data(){
         return {
             breadCrumbOptions: [
@@ -89,40 +92,80 @@ export default {
             ],
             iconBoxCard: ['fas fa-edit','fas fa-trash-alt'],
             showModal: false,
-            fileList: [],
+            valueEditor: {},
             activeModal: false,
             fileTypeSelected:{},
             editorValue: {},
             fileName: '',
             user: '',
-            isValidName: false
+            isValidName: false,
+            currentFile: {},
+            showNotification: false,
+            messageNotification: ''
         }
     },
     mounted(){
         client.authenticate().then(r => {
             this.user = window.localStorage.getItem('x_code_id');
+            if(!_.isUndefined(this.$route.params.file_id) && !_.isEmpty(this.$route.params.file_id)){
+                client.service('archivos').get(this.$route.params.file_id).then(response => {
+                    this.currentFile = response;
+                    this.valueEditor = {
+                        value: this.currentFile.texto,
+                        extension: this.currentFile.tipo_archivo.name
+                    };
+                    this.breadCrumbOptions[1].text = this.currentFile.nombre;
+                });
+            }
         }).catch(e => {
             window.location.href = '#/login';
         });
     },
     methods:{
         showSaveModal(){
-            this.showModal = true;
+            if(_.isEmpty(this.currentFile))
+                this.showModal = true;
+            else 
+                this.saveFile();
+        },
+        editorHandler(event){
+            this.editorValue = event;
         },
         saveFile(){
-            if(!_.isEmpty(this.fileName)){
-                let newFile = {
-                    nombre: this.fileName,
-                    id_usuario: this.user,
-                    estado: 'Activo',
-                    tipo_archivo: this.editorValue.extension,
-                    texto: this.editorValue.value,
-                };
-                this.showModal = false;
-                client.service('archivos').create(newFile).then(console.log).catch(console.log);
+            this.messageNotification = 'Guardando archivo';
+            this.showNotification = true;
+            if(_.isEmpty(this.currentFile)){
+                if(!_.isEmpty(this.fileName)){
+                    let newFile = {
+                        nombre: this.fileName,
+                        id_usuario: this.user,
+                        estado: 'Activo',
+                        tipo_archivo: this.editorValue.extension,
+                        texto: this.editorValue.value,
+                    };
+                    this.showModal = false;
+                    client.service('archivos').create(newFile).then(r => {
+                        this.messageNotification = 'Archivo guardado';
+                        setTimeout(()=>{this.showNotification = false}, 1500);
+                        window.location.href = '#/editor/' + r._id;
+                    }).catch(console.log);
+                } else {
+                    this.isValidName = true;
+                }
             } else {
-                this.isValidName = true;
+                client.service('archivos').patch(this.currentFile._id, {texto: this.editorValue.value})
+                    .then(r => {
+                        this.messageNotification = 'Archivo guardado';
+                        setTimeout(()=>{this.showNotification = false}, 1500);
+                    })
+                    .catch(console.log)
             }
+        },
+        downloadFile(){
+            let extension = this.currentFile.tipo_archivo.extension || this.currentFile.nombre;
+            let fileName = this.currentFile.nombre + (extension.includes('.')? extension: '.' + extension);
+            let blob = new Blob([this.currentFile.texto], {type: 'text/plain;charset=utf-8'});
+            FileSaver.saveAs(blob, fileName);
         }
     }
 }

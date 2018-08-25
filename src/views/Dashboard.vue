@@ -1,12 +1,13 @@
 <template>
     <div class="dashboard">
+        <FloatNotification v-if="showFloatNotification">{{floatMessage}}</FloatNotification>
         <div class="header-dashboard">
             <nav class="level">
                 <div class="level-left">
                     <div class="level-item">
                         <div class="field has-addons">
                             <p class="control">
-                                <input class="input" type="text" placeholder="Buscar...">
+                                <input @focus="readyToSearch()" v-model="searchText" class="input" type="text" placeholder="Buscar...">
                             </p>
                             <p class="control">
                                 <button class="button">
@@ -40,10 +41,10 @@
                     <List name="dashboard-options" :items="listOptions" @item-changed="optionsHandler($event)"></List>
                 </div>
                 <div class="column right-container" v-if="activePage=='my-codes'">
-                    <BoxCard v-for="(file, key) in fileList" :key="key" :icons="iconBoxCard" :name="file._id" :user="file.usuario.name" :img="file.tipo_archivo.icon"  :date="file.creado" :description="file.nombre" @box-card-action-selected="fileListHandler($event)"/>
+                    <BoxCard v-for="(file, key) in fileList" :key="key" :icons="iconBoxCard" :name="file._id" :user="file.usuario.name" :img="file.tipo_archivo.icon"  :date="file.actualizado" :description="file.nombre" @box-card-action-selected="fileListHandler($event)"/>
                 </div>
                 <div class="column right-container" v-else-if="activePage=='my-favorites'">
-                    <BoxCard v-for="(file, key) in favoriteFiles" :key="key" :icons="iconBoxCardFavorites" :name="file._id" :user="file.usuario.name" :img="file.tipo_archivo.icon"  :date="file.creado" :description="file.nombre" @box-card-action-selected="favoriteFilesHandler($event)"/>
+                    <BoxCard v-for="(file, key) in favoriteFiles" :key="key" :icons="iconBoxCardFavorites" :name="file._id" :user="file.usuario.name" :img="file.tipo_archivo.icon"  :date="file.actualizado" :description="file.nombre" @box-card-action-selected="favoriteFilesHandler($event)"/>
                 </div>
                 <div class="column right-container" v-else-if="activePage=='my-profile'">
                     <div class="card">
@@ -51,7 +52,7 @@
                             <div class="media">
                             <div class="media-left">
                                 <figure class="image is-48x48">
-                                    <img :src="currentUser.imagen.uri" alt="Placeholder image">
+                                    <img ref="pp" :src="currentUser.imagen.uri" alt="Placeholder image">
                                 </figure>
                             </div>
                             <div class="media-content">
@@ -61,17 +62,27 @@
                             </div>
 
                             <div class="content">
-                                <p>{{getRegisterDate}}</p>
-                                <a>Editar foto</a>
-                                <a href="#">Cambiar contrasena</a>
-                                <a href="#">Eliminar cuentas</a>                                
+                                <p>Registrado desde: {{getRegisterDate}}</p>
+                                <EditableLabel v-model="descripcion" @text-change="saveDescription()"></EditableLabel>
+                                <tabs>
+                                    <tab name="tab1" title="Editar foto" :is-checked="activeTab=='tab1'" @selected-tab="activeTab='tab1'">
+                                        <InputFile v-model="newProfilePict" file-types="image/*" label="Seleccione una imagen nueva">Seleccionar</InputFile>
+                                    </tab>
+                                    <tab name="tab2" :is-checked="activeTab=='tab2'" title="Editar nombre de usuario" @selected-tab="activeTab='tab2'">
+
+                                    </tab>
+                                    <tab name="tab3" :is-checked="activeTab=='tab3'" title="Cambio de contraseña" @selected-tab="activeTab='tab3'">
+                                        <FormBuilder accept-button-title="Reestablecer" :fields="fieldsPassword" button-align="Center" :clean-fields="cleanFields" @form-valid="reset($event)"/>
+                                        <Notification name="reset-notification" type="is-danger" v-if="showNotification" @close-notification="showNotification=false">{{notificationMessage}}</Notification>
+                                    </tab>
+                                </tabs>
                                 <br>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="column right-container" v-else-if="activePage=='recycler-bin'">
-                    <BoxCard v-for="(file, key) in deletedFiles" :key="key" :icons="iconBoxCardRecycler" :name="file._id" :user="file.usuario.name" :img="file.tipo_archivo.icon"  :date="file.creado" :description="file.nombre" @box-card-action-selected="deletedFilesHandler($event)"/>
+                    <BoxCard v-for="(file, key) in deletedFiles" :key="key" :icons="iconBoxCardRecycler" :name="file._id" :user="file.usuario.name" :img="file.tipo_archivo.icon"  :date="file.actualizado" :description="file.nombre" @box-card-action-selected="deletedFilesHandler($event)"/>
                 </div>
                 <div class="column right-container" v-else-if="activePage=='my-bills'">
                      <div class="card">
@@ -120,6 +131,9 @@
                 <div class="column right-container" v-else-if="activePage=='my-aportations'">
                     <LinearGraph :title="graphTitle" :labels="labels" :data="dataGraph" :border-color="color"/>
                 </div>
+                <div class="column right-container" v-else-if="activePage=='Search'">
+                    <BoxCard v-for="(file, key) in filteredFiles" :icons="['fas fa-edit']" :key="key" :name="file._id" :user="file.usuario.name" :img="file.tipo_archivo.icon"  :date="file.actualizado" :description="file.nombre" @box-card-action-selected="fileListHandler($event)"/>
+                </div>
                 <div class="column right-container" v-else>
                     <h1 class="title">Bienvenido a tu plataforma</h1>
                 </div>
@@ -135,13 +149,22 @@ import DropDown from '../components/DropDown'
 import DropDownItem from '../components/DropDownItem';
 import BoxCard from '../components/BoxCard';
 import LinearGraph from '../components/LinearGraph';
+import EditableLabel from '../components/EditableLabel';
+import FormBuilder from '../components/FormBuilder';
+import tabs from '../components/tabs';
+import tab from '../components/tab';
+import InputFile from '../components/InputFile';
+import Notification from '../components/Notification';
+import FloatNotification from '../components/FloatNotification';
 import {client} from '../client';
 import {user} from '../classes/user';
 import _ from 'lodash';
 
 export default {
     name: 'Dashboard',
-    components: { Breadcrumb, List, DropDown, DropDownItem, BoxCard, LinearGraph},
+    components: { Breadcrumb, List, DropDown, DropDownItem, BoxCard, 
+                LinearGraph, EditableLabel, tabs, tab, InputFile, FormBuilder, Notification,
+                FloatNotification},
     data(){
         return {
             breadCrumbOptions: [
@@ -188,36 +211,103 @@ export default {
             iconBoxCardRecycler: ['fas fa-undo','fas fa-trash'],
             activePage: '',
             graphTitle: 'Mis aportaciones',
-            labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio'],
-            dataGraph: [0, 10, 5, 2, 20, 30, 45],
+            labels: [],
+            dataGraph: [],
             color: 'rgb(52, 123, 152)',
             user: '',
             fileList: [],
             favoriteFiles: [],
             deletedFiles: [],
-            currentUser: {}
+            currentUser: {},
+            descripcion: '',
+            newProfilePict: undefined,
+            fieldsPassword: [
+                {
+                    name: 'OldPassword',
+                    label: 'Ingrese la anterior contraseña',
+                    placeholder: 'Contraseña',
+                    type: 'password',
+                    isRequired: true,
+                    isError: false,
+                    messageError: 'El campo de contraseña es requerido',
+                    value: '',
+                    regex: ''
+                },
+                {
+                    name: 'OldPassword2',
+                    label: 'Ingrese nuevamente la anterior contraseña',
+                    placeholder: 'Confirmación',
+                    type: 'password',
+                    isRequired: true,
+                    isError: false,
+                    messageError: 'El campo de contraseña es requerido',
+                    value: '',
+                    regex: ''
+                },
+                {
+                    name: 'NewPassword',
+                    label: 'Ingrese la nueva contraseña',
+                    placeholder: 'Contraseña nueva',
+                    type: 'password',
+                    isRequired: true,
+                    isError: false,
+                    messageError: 'El campo de nueva contraseña es requerido',
+                    value: '',
+                    regex: ''
+                }
+            ],
+            cleanFields: false,
+            showNotification: false,
+            notificationMessage: '',
+            floatMessage: '',
+            showFloatNotification: false,
+            activeTab: 'tab1',
+            globalFiles: [],
+            searchText: ''
         }
     },
     mounted(){
         client.authenticate()
             .then(r => {
                 this.user = localStorage.getItem('x_code_id');
-                client.service('archivos').find({query: {id_usuario: this.user, id_estado: '5b78c6ed72160b0bbc8b560e'}}).then(response => {
-                    this.fileList = response.data;
-                });
-                client.service('archivos').find({query: {id_usuario: this.user, id_estado: '5b7a282f725748337c4aa84e'}}).then(response => {
-                    this.favoriteFiles = response.data;
-                });
-                client.service('archivos').find({query: {id_usuario: this.user, id_estado: '5b78c70b72160b0bbc8b560f'}}).then(response => {
-                    this.deletedFiles = response.data;
+                let files =  client.service('archivos').find({query: {id_usuario: this.user, id_estado: '5b78c6ed72160b0bbc8b560e'}});
+                let favorites = client.service('archivos').find({query: {id_usuario: this.user, id_estado: '5b7a282f725748337c4aa84e'}});
+                let deleted = client.service('archivos').find({query: {id_usuario: this.user, id_estado: '5b78c70b72160b0bbc8b560f'}});
+                Promise.all([files, favorites, deleted]).then(values => {
+                    this.fileList = values[0].data;
+                    this.favoriteFiles = values[1].data;
+                    this.deletedFiles = values[2].data;
+                    let allFiles = this.concatFiles();
+                    _.forEach(allFiles, (file, key) => {
+                        let fecha = new Date(file.creado);
+                        file['fecha'] = `${fecha.getMonth()}-${fecha.getFullYear()}`;
+                        allFiles[key] = file;
+                    });
+                    allFiles = _.groupBy(allFiles, 'fecha');
+                    this.labels = _.keys(allFiles);
+                    _.forEach(allFiles, (file, key) => {
+                        this.dataGraph.push(file.length);
+                    });
                 });
                 client.service('users').get(this.user).then(user => {
                     this.currentUser = user;
+                    this.descripcion = this.currentUser.descripcion || 'Escriba una pequeña descripción'
                 })
             })
             .catch(e => {
                 window.location.href = '#/login';
             });
+    },
+    watch:{
+        newProfilePict: function(newVal){
+            client.service('users').patch(this.currentUser._id, {profile : this.newProfilePict})
+                .then(r=> {
+                    this.floatMessage = 'Foto de perfil actualizada';
+                    this.showFloatNotification = true;
+                    setTimeout(()=>{this.showFloatNotification = false}, 1500);
+                    this.$refs.pp.src = this.newProfilePict.uri;
+                }).catch(console.log);
+        }
     },
     computed: {
         getUserName: function(){
@@ -228,6 +318,14 @@ export default {
             let date = new Date(this.currentUser.createdAt);
             let registerDate = `${date.getDate()}-${date.getMonth()}-${date.getFullYear()}`;
             return registerDate;
+        },
+        filteredFiles() {
+            if(!_.isEmpty(this.searchText)){
+                return this.globalFiles.filter(file => {
+                    return file.nombre.includes(this.searchText);
+                })
+            }
+            return this.globalFiles;
         }
     },
     methods: {
@@ -261,6 +359,8 @@ export default {
                     this.fileList.splice(index, 1);
                     this.deletedFiles.push(file);
                 });
+            } else if(event.action == 'fas fa-edit'){
+                window.location.href = '#/editor/' + event.name;
             }
         },
         favoriteFilesHandler(event){
@@ -280,6 +380,8 @@ export default {
                     this.favoriteFiles.splice(index, 1);
                     this.deletedFiles.push(file);
                 });
+            } else if(event.action == 'fas fa-edit'){
+                window.location.href = '#/editor/' + event.name;
             }
         },
         deletedFilesHandler(event){
@@ -299,6 +401,50 @@ export default {
                     this.deletedFiles.splice(index, 1);
                 });
             }
+        },
+        saveDescription(){
+            client.service('users').patch(this.currentUser._id, {descripcion: this.descripcion})
+                .then(r => {
+                    this.floatMessage = 'Descripción actualizada';
+                    this.showFloatNotification = true;
+                    setTimeout(()=>{this.showFloatNotification = false}, 1500);
+                }).catch(console.log);
+        },
+        reset(event){
+            if(event[0].value === event[1].value){
+                if(event[0].value !== event[2].value){
+                    client.service('users').patch(this.currentUser._id, {password: event[2].value})
+                        .then(r => {
+                            this.floatMessage = 'Contraseña actualizada';
+                            this.showFloatNotification = true;
+                            this.cleanFields = true;
+                            setTimeout(()=>{this.showFloatNotification = false}, 1500);
+                        }).catch(console.log);
+                } else {
+                    this.notificationMessage = 'La contraseña nueva es igual a la anterior';
+                    this.showNotification = true;
+                }
+            } else {
+                this.notificationMessage = 'Las contraseñas no coinciden';
+                this.showNotification = true;
+            }
+        },
+        readyToSearch(){
+            this.globalFiles = this.concatFiles();
+            this.activePage = 'Search';
+        },
+        concatFiles(){
+            let allFiles = [];
+            _.forEach(this.fileList, file => {
+                allFiles.push(file);
+            });
+            _.forEach(this.deletedFiles, file => {
+                allFiles.push(file);
+            });
+            _.forEach(this.favoriteFiles, file => {
+                allFiles.push(file);
+            });
+            return allFiles;
         }
     }
 }
@@ -324,9 +470,6 @@ export default {
         background-color: #347B98;
         padding: 12px;
     }
-    /* .breadcrumb-label {
-        color: #1258DC;
-    } */
     .list{
         background-color: whitesmoke;
     }

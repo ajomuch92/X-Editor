@@ -2,7 +2,7 @@
     <div class="text-area">
         <div class="tool-bar">
             <div class="select">
-                <select v-model="currentLanguage" @change="setLanguage()">
+                <select v-model="currentLanguage" @change="setLanguage()" :disabled="!isEmpty(value)">
                     <option value="0">Select language</option>
                     <option v-for="(language,key) in languages" :key="key" :value="language">{{language.replace('_', ' ')}}</option>
                 </select>
@@ -19,13 +19,9 @@
 </template>
 
 <script>
-
+import _ from 'lodash';
 export default {
     name: 'Editor',
-    model: {
-        prop: 'value',
-        event: 'editor-change'
-    },
     props: {
         lang: {
             type: String,
@@ -146,10 +142,19 @@ export default {
                     ]
         }
     },
+    watch:{
+        value: function(newVal){
+            this.setValue();
+        }
+    },
     mounted(){
         this.editor = ace.edit('code-editor');
         this.editor.setTheme(this.themeString);
         this.editor.session.setMode('ace/mode/'+this.lang);
+        this.$emit('editor-change', {
+            value: '',
+            extension: 'text'
+        });
         this.editor.on('change', (e) => {
             let value = this.editor.getValue();
             let session = this.editor.getSession();
@@ -158,13 +163,7 @@ export default {
                 value: value,
                 extension
             });
-        });
-    },
-    created(){
-        this.$emit('editor-change', {
-            value: '',
-            extension: 'text'
-        });
+        });        
     },
     methods: {
         setTheme(){
@@ -174,6 +173,17 @@ export default {
         setLanguage(){
             if(this.currentLanguage !== '0')
                 this.editor.session.setMode('ace/mode/'+this.currentLanguage);
+        },
+        setValue(){
+            if(!_.isEmpty(this.value)){
+                let newString = this.value.value;
+                this.editor.setValue(newString, 0);
+                this.editor.session.setMode('ace/mode/'+this.value.extension.toLowerCase());
+                this.currentLanguage = this.value.extension.toLowerCase();
+            } 
+        },
+        isEmpty(obj){
+            return _.isEmpty(obj);
         }
     }
 }

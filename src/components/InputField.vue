@@ -2,7 +2,7 @@
     <div class="field">
         <label class="label" v-if="label!=''">{{label}}</label>
         <div class="control" :class="{'has-icons-left': icon!=''}">
-            <input ref="input" class="input" :class="{'is-danger': isError}" :type="type" :placeholder="placeholder" @keypress="valueChanged($event)" @change="valueChanged($event)">
+            <input ref="input" class="input" :class="{'is-danger': isError}" :type="type" :placeholder="placeholder" @keypress="valueChanged($event)" @change="valueChanged($event)" @blur="inputBlur">
             <span class="icon is-small is-left" v-if="icon!=''">
                 <i :class="icon"></i>
             </span>
@@ -48,6 +48,9 @@ export default {
             default: ''
         }
     },
+    mounted(){
+        this.$refs.input.value = this.value;
+    },
     data(){
         return {
         }
@@ -62,6 +65,9 @@ export default {
     methods :{
         valueChanged(event){
             this.$emit('text-change', event.target.value);
+        },
+        inputBlur(event){
+            this.$emit('blur', event.target.value);
         }
     }
 }

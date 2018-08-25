@@ -99,6 +99,7 @@ export default {
                 user[element.name.toLowerCase()] = element.value;
             });
             user['tipo_usuario'] = '5b67841a6a03930b84d527ff';
+            user['descripcion'] = '';
             client.service('users').create(user)
                 .then(r => {
                     this.notificationMessage = 'Usuario registrado con éxito. Ya puede iniciar sesión';

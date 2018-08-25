@@ -51,11 +51,9 @@ export default {
         background: #eee; 
         padding: 10px; 
         color: darkblue;
-        /* border: 1px solid #ccc;  */
         margin-left: -1px; 
         position: relative;
         left: 1px; 
-        /* border-radius: 5px 5px 0 0; */
         cursor: pointer;
     }
     .tab-title:hover{
@@ -74,7 +72,7 @@ export default {
         padding: 20px;
         /* border: 1px solid #ccc; 
         border-radius: 0 5px 5px 5px; */
-        min-height: 300px;
+        /* min-height: 300px; */
         overflow-y: auto;
     }
     [type=radio]:checked ~ label {

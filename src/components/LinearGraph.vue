@@ -49,6 +49,13 @@ export default {
                 }],
             },
             options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                },
 				responsive: true,
 			}
         };
