@@ -41,10 +41,10 @@
                     <List name="dashboard-options" :items="listOptions" @item-changed="optionsHandler($event)"></List>
                 </div>
                 <div class="column right-container" v-if="activePage=='my-codes'">
-                    <BoxCard v-for="(file, key) in fileList" :key="key" :icons="iconBoxCard" :name="file._id" :user="file.usuario.name" :img="file.tipo_archivo.icon"  :date="file.actualizado" :description="file.nombre" @box-card-action-selected="fileListHandler($event)"/>
+                    <BoxCard v-for="(file, key) in fileList" :key="key" :icons="iconBoxCard" :name="file._id" :description="file.usuario.name" :img="file.tipo_archivo.icon"  :date="formatDate(file.actualizado)" :user="file.nombre" @box-card-action-selected="fileListHandler($event)"/>
                 </div>
                 <div class="column right-container" v-else-if="activePage=='my-favorites'">
-                    <BoxCard v-for="(file, key) in favoriteFiles" :key="key" :icons="iconBoxCardFavorites" :name="file._id" :user="file.usuario.name" :img="file.tipo_archivo.icon"  :date="file.actualizado" :description="file.nombre" @box-card-action-selected="favoriteFilesHandler($event)"/>
+                    <BoxCard v-for="(file, key) in favoriteFiles" :key="key" :icons="iconBoxCardFavorites" :name="file._id" :description="file.usuario.name" :img="file.tipo_archivo.icon"  :date="formatDate(file.actualizado)" :user="file.nombre" @box-card-action-selected="favoriteFilesHandler($event)"/>
                 </div>
                 <div class="column right-container" v-else-if="activePage=='my-profile'">
                     <div class="card">
@@ -62,17 +62,21 @@
                             </div>
 
                             <div class="content">
-                                <p>Registrado desde: {{getRegisterDate}}</p>
+                                <p class="subtitle is-5">Registrado desde: {{getRegisterDate}}</p>
+                                <p class="subtitle is-6">Espacio utilizado: {{getSize}}</p>
                                 <EditableLabel v-model="descripcion" @text-change="saveDescription()"></EditableLabel>
                                 <tabs>
                                     <tab name="tab1" title="Editar foto" :is-checked="activeTab=='tab1'" @selected-tab="activeTab='tab1'">
                                         <InputFile v-model="newProfilePict" file-types="image/*" label="Seleccione una imagen nueva">Seleccionar</InputFile>
                                     </tab>
                                     <tab name="tab2" :is-checked="activeTab=='tab2'" title="Editar nombre de usuario" @selected-tab="activeTab='tab2'">
-
+                                        <p>De click sobre su nombre y edítelo</p>
+                                        <EditableLabel v-model="currentUser.name" @text-change="saveUsername()"></EditableLabel>
+                                        <br>
+                                        <myButton type="is-danger" :is-outlined="true" @click="deleteAccount()" :is-loading="isLoadingDeleting">Eliminar cuenta</myButton>
                                     </tab>
                                     <tab name="tab3" :is-checked="activeTab=='tab3'" title="Cambio de contraseña" @selected-tab="activeTab='tab3'">
-                                        <FormBuilder accept-button-title="Reestablecer" :fields="fieldsPassword" button-align="Center" :clean-fields="cleanFields" @form-valid="reset($event)"/>
+                                        <FormBuilder accept-button-title="Reestablecer" :fields="fieldsPassword" button-align="Center" :clean-fields="cleanFields" @form-valid="reset($event)" :is-loadind="isLoadingChangePassword"/>
                                         <Notification name="reset-notification" type="is-danger" v-if="showNotification" @close-notification="showNotification=false">{{notificationMessage}}</Notification>
                                     </tab>
                                 </tabs>
@@ -82,57 +86,16 @@
                     </div>
                 </div>
                 <div class="column right-container" v-else-if="activePage=='recycler-bin'">
-                    <BoxCard v-for="(file, key) in deletedFiles" :key="key" :icons="iconBoxCardRecycler" :name="file._id" :user="file.usuario.name" :img="file.tipo_archivo.icon"  :date="file.actualizado" :description="file.nombre" @box-card-action-selected="deletedFilesHandler($event)"/>
+                    <BoxCard v-for="(file, key) in deletedFiles" :key="key" :icons="iconBoxCardRecycler" :name="file._id" :description="file.usuario.name" :img="file.tipo_archivo.icon"  :date="formatDate(file.actualizado)" :user="file.nombre" @box-card-action-selected="deletedFilesHandler($event)"/>
                 </div>
-                <div class="column right-container" v-else-if="activePage=='my-bills'">
-                     <div class="card">
-                        <div class="card-content">
-                            <div class="media">
-                                <div class="media-content">
-                                    <p class="title is-4">Gratuito</p>
-                                </div>
-                            </div>
-                            <div class="content">
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                                Phasellus nec iaculis mauris.</p>
-                                <a class="button is-info" disabled>Comprar</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-content">
-                            <div class="media">
-                                <div class="media-content">
-                                    <p class="title is-4">Plan 1</p>
-                                </div>
-                            </div>
-                            <div class="content">
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                                Phasellus nec iaculis mauris.</p>
-                                <a class="button is-info">Comprar</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-content">
-                            <div class="media">
-                                <div class="media-content">
-                                    <p class="title is-4">Plan 2</p>
-                                </div>
-                            </div>
-                            <div class="content">
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                                Phasellus nec iaculis mauris.</p>
-                                <a class="button is-info">Comprar</a>
-                            </div>
-                        </div>
-                    </div>
+                <div class="column right-container" v-else-if="activePage=='my-shared'">
+                     <BoxCard v-for="(file, key) in sharedFiles" :icons="['fas fa-edit']" :key="key" :name="file._id" :description="file.usuario.name" :img="file.tipo_archivo.icon"  :date="formatDate(file.compartido)" :user="file.nombre" @box-card-action-selected="fileListHandler($event)"/>
                 </div>
                 <div class="column right-container" v-else-if="activePage=='my-aportations'">
                     <LinearGraph :title="graphTitle" :labels="labels" :data="dataGraph" :border-color="color"/>
                 </div>
                 <div class="column right-container" v-else-if="activePage=='Search'">
-                    <BoxCard v-for="(file, key) in filteredFiles" :icons="['fas fa-edit']" :key="key" :name="file._id" :user="file.usuario.name" :img="file.tipo_archivo.icon"  :date="file.actualizado" :description="file.nombre" @box-card-action-selected="fileListHandler($event)"/>
+                    <BoxCard v-for="(file, key) in filteredFiles" :icons="['fas fa-edit']" :key="key" :name="file._id" :description="file.usuario.name" :img="file.tipo_archivo.icon"  :date="formatDate(file.actualizado)" :user="file.nombre" @box-card-action-selected="fileListHandler($event)"/>
                 </div>
                 <div class="column right-container" v-else>
                     <h1 class="title">Bienvenido a tu plataforma</h1>
@@ -156,15 +119,17 @@ import tab from '../components/tab';
 import InputFile from '../components/InputFile';
 import Notification from '../components/Notification';
 import FloatNotification from '../components/FloatNotification';
+import myButton from '../components/MyButton';
 import {client} from '../client';
 import {user} from '../classes/user';
 import _ from 'lodash';
+import dateFormat from 'dateformat';
 
 export default {
     name: 'Dashboard',
     components: { Breadcrumb, List, DropDown, DropDownItem, BoxCard, 
                 LinearGraph, EditableLabel, tabs, tab, InputFile, FormBuilder, Notification,
-                FloatNotification},
+                FloatNotification, myButton},
     data(){
         return {
             breadCrumbOptions: [
@@ -196,9 +161,9 @@ export default {
                     content: 'Papelera'
                 },
                 {
-                    name: 'my-bills',
-                    icon: 'far fa-money-bill-alt',
-                    content: 'Mi plan'
+                    name: 'my-shared',
+                    icon: 'fab fa-slideshare',
+                    content: 'Compartido conmigo'
                 },
                 {
                     name: 'my-aportations',
@@ -218,6 +183,7 @@ export default {
             fileList: [],
             favoriteFiles: [],
             deletedFiles: [],
+            sharedFiles: [],
             currentUser: {},
             descripcion: '',
             newProfilePict: undefined,
@@ -263,7 +229,10 @@ export default {
             showFloatNotification: false,
             activeTab: 'tab1',
             globalFiles: [],
-            searchText: ''
+            searchText: '',
+            isLoadingChangePassword: false,
+            currentSize: 0,
+            isLoadingDeleting: false
         }
     },
     mounted(){
@@ -273,12 +242,15 @@ export default {
                 let files =  client.service('archivos').find({query: {id_usuario: this.user, id_estado: '5b78c6ed72160b0bbc8b560e'}});
                 let favorites = client.service('archivos').find({query: {id_usuario: this.user, id_estado: '5b7a282f725748337c4aa84e'}});
                 let deleted = client.service('archivos').find({query: {id_usuario: this.user, id_estado: '5b78c70b72160b0bbc8b560f'}});
-                Promise.all([files, favorites, deleted]).then(values => {
+                let shared = client.service('archivos_compartidos_usuario').find({query: {id_usuario: this.user}});
+                Promise.all([files, favorites, deleted, shared]).then(values => {
                     this.fileList = values[0].data;
                     this.favoriteFiles = values[1].data;
                     this.deletedFiles = values[2].data;
-                    let allFiles = this.concatFiles();
-                    _.forEach(allFiles, (file, key) => {
+                    this.sharedFiles = values[3];
+                    this.globalFiles = this.concatFiles();
+                    let allFiles = {};
+                    _.forEach(this.globalFiles, (file, key) => {
                         let fecha = new Date(file.creado);
                         file['fecha'] = `${fecha.getMonth()}-${fecha.getFullYear()}`;
                         allFiles[key] = file;
@@ -326,6 +298,20 @@ export default {
                 })
             }
             return this.globalFiles;
+        },
+        getSize(){
+            if (!('TextEncoder' in window)) {
+                return 'Your browser doesnt support TextEncoder'
+            }
+            else {
+                let bytes = 0;
+                _.forEach(this.globalFiles, file => {
+                    let encoder = new TextEncoder('ASCII');
+                    let size = encoder.encode(file.texto);
+                    bytes += size.byteLength;
+                });
+                return this.formatByteSize(bytes);
+            }
         }
     },
     methods: {
@@ -403,6 +389,7 @@ export default {
             }
         },
         saveDescription(){
+            this.activeTab = 'tab1';
             client.service('users').patch(this.currentUser._id, {descripcion: this.descripcion})
                 .then(r => {
                     this.floatMessage = 'Descripción actualizada';
@@ -410,7 +397,18 @@ export default {
                     setTimeout(()=>{this.showFloatNotification = false}, 1500);
                 }).catch(console.log);
         },
+        saveUsername(){
+            this.activeTab = 'tab2';
+            client.service('users').patch(this.currentUser._id, {name: this.currentUser.name})
+                .then(r => {
+                    this.floatMessage = 'Nombre actualizado';
+                    this.showFloatNotification = true;
+                    setTimeout(()=>{this.showFloatNotification = false}, 1500);
+                }).catch(console.log);
+        },
         reset(event){
+            this.activeTab = 'tab3';
+            this.isLoadingChangePassword = true;
             if(event[0].value === event[1].value){
                 if(event[0].value !== event[2].value){
                     client.service('users').patch(this.currentUser._id, {password: event[2].value})
@@ -418,19 +416,21 @@ export default {
                             this.floatMessage = 'Contraseña actualizada';
                             this.showFloatNotification = true;
                             this.cleanFields = true;
+                            this.isLoadingChangePassword = false;
                             setTimeout(()=>{this.showFloatNotification = false}, 1500);
                         }).catch(console.log);
                 } else {
                     this.notificationMessage = 'La contraseña nueva es igual a la anterior';
                     this.showNotification = true;
+                    this.isLoadingChangePassword = false;
                 }
             } else {
                 this.notificationMessage = 'Las contraseñas no coinciden';
+                this.isLoadingChangePassword = false;
                 this.showNotification = true;
             }
         },
         readyToSearch(){
-            this.globalFiles = this.concatFiles();
             this.activePage = 'Search';
         },
         concatFiles(){
@@ -445,6 +445,24 @@ export default {
                 allFiles.push(file);
             });
             return allFiles;
+        },
+        formatByteSize(bytes) {
+            if(bytes < 1024) return bytes + ' bytes';
+            else if(bytes < 1048576) return(bytes / 1024).toFixed(3) + ' KiB';
+            else if(bytes < 1073741824) return(bytes / 1048576).toFixed(3) + ' MiB';
+            else return(bytes / 1073741824).toFixed(3) + ' GiB';
+        },
+        deleteAccount(){
+            this.isLoadingDeleting = true;
+            client.service('users').remove(this.currentUser._id).then(r => {
+                this.activeTab = 'tab3';
+                this.isLoadingDeleting = false;
+                this.logout();
+            }).catch(console.log);
+        },
+        formatDate(string){
+            let date = new Date(string);
+            return dateFormat(date, 'dd-mm-yyyy');
         }
     }
 }

@@ -2,7 +2,7 @@
     <section class="hero is-medium">
         <div class="signup-template">
             <div style="background-color: white; width: 500px; border-radius: 5px">
-                <FormBuilder title="Crear una nueva cuenta" accept-button-title="Create" :fields="fields" button-align="Right" :clean-fields="cleanFields" @form-valid="register($event)"/>
+                <FormBuilder title="Crear una nueva cuenta" accept-button-title="Create" :fields="fields" button-align="Right" :clean-fields="cleanFields" @form-valid="register($event)" :is-loading="isLoading"/>
                 <Notification name="login-notification" :type="notificationType" v-if="showNotification" @close-notification="showNotification=false">{{notificationMessage}}</Notification>
                 <div id="social-login">
                     O regístrate con
@@ -89,11 +89,13 @@ export default {
             showNotification: false,
             notificationType: 'is-primary',
             notificationMessage: '',
-            cleanFields: false
+            cleanFields: false,
+            isLoading: false
         }
     },
     methods: {
         register(event){
+            this.isLoading = true;
             let user = {};
             _.forEach(event, (element, key) => {
                 user[element.name.toLowerCase()] = element.value;
@@ -105,10 +107,12 @@ export default {
                     this.notificationMessage = 'Usuario registrado con éxito. Ya puede iniciar sesión';
                     this.showNotification = true;
                     this.notificationType = 'is-primary';
+                    this.isLoading = false;
                     this.cleanFields = true;
                 })
                 .catch(e => {
                     this.notificationMessage = 'Error al crear usuario: correo ya registrado.';
+                    this.isLoading = false;
                     this.showNotification = true;
                     this.notificationType = 'is-danger';
                 });

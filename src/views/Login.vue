@@ -2,7 +2,7 @@
     <section class="hero is-medium">
         <div class="login-template">
             <div style="background-color: white; width: 400px; border-radius: 5px">
-                <FormBuilder title="Por favor, inicie sesión" accept-button-title="Login" :fields="fields" button-align="Center" :clean-fields="cleanFields" @form-valid="login($event)"/>
+                <FormBuilder title="Por favor, inicie sesión" accept-button-title="Login" :fields="fields" button-align="Center" :clean-fields="cleanFields" @form-valid="login($event)" :is-loading="isLoading"/>
                 <Notification name="login-notification" :type="notificationType" v-if="showNotification" @close-notification="showNotification=false">{{notificationMessage}}</Notification>                
                 <div id="social-login">
                     O inicia sesión con 
@@ -67,14 +67,18 @@ export default {
             showNotification: false,
             notificationType: 'is-danger',
             notificationMessage: 'Correo o contraseña incorrecta.',
-            cleanFields: false
+            cleanFields: false,
+            isLoading: false
         }
     },
     mounted(){
-
+        client.authenticate().then( r => {
+            window.location.href = '#/dashboard';
+        });
     },
     methods: {
         login(event){
+            this.isLoading = true;
             let fields = {}
             _.forEach(event, (element, key) => {
                 fields[element.name.toLowerCase()] = element.value;
@@ -90,12 +94,14 @@ export default {
                         .then(u => {
                             user.setUser(u.data[0]);
                             localStorage.setItem('x_code_id',u.data[0]._id);
+                            this.isLoading = false;
                             window.location.href = '#/dashboard';
                         })
                 })
                 .catch(error => {
                     this.notificationMessage = 'Correo o contraseña incorrecta.';
                     this.showNotification = true;
+                    this.isLoading = false;
                 });
         }
     }

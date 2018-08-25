@@ -13,13 +13,10 @@
         <div class="content-dashboard">
             <div class="columns">                    
                 <div class="column">
-                    <div class="icons-container">
-                        <i class="far fa-copy"></i>    
-                        <i class="fas fa-cut"></i>    
-                        <i class="fas fa-paste"></i>    
+                    <div class="icons-container">   
                         <i class="far fa-save" @click="showSaveModal()"></i>    
                         <i class="fas fa-download" @click="downloadFile()"></i>    
-                        <i class="far fa-eye"></i>
+                        <i class="far fa-share-square" @click="showShareModal()"></i>
                     </div>
                     <Editor :value="valueEditor" @editor-change="editorHandler($event)"/>
                 </div>
@@ -28,6 +25,12 @@
                     <label for="">Se guardará como un archivo {{editorValue.extension}}</label>
                     <InputField label="Nombre" type="text" :is-error="isValidName" message-error="Ingrese un nombre" v-model="fileName"></InputField>
                     <button slot="footer" class="button is-info" @click="saveFile()">Guardar</button>
+                </Modal>
+                <Modal :is-active="showSharedModal" @close-modal="showSharedModal=false">
+                    <h2 slot="header">Compartir archivo</h2>
+                    <InputField label="Correo electrónico" type="text" :is-error="isValidEmail" :message-error="validationMessage" v-model="email"></InputField>
+                    <!-- <button slot="footer" class="button is-info" >Compartir</button> -->
+                    <myButton slot="footer" type="is-info" :is-loading="isLoading" @click="shareFile()">Compartir</myButton>
                 </Modal>
             </div>
         </div>
@@ -41,6 +44,7 @@ import Modal from '../components/Modal';
 import Dropdown from '../components/Dropdown';
 import InputField from '../components/InputField';
 import Notification from '../components/FloatNotification';
+import myButton from '../components/MyButton';
 import {client} from '../client';
 import {user} from '../classes/user';
 import _ from 'lodash';
@@ -48,7 +52,7 @@ import FileSaver from 'file-saver';
 
 export default {
     name: 'Dashboard',
-    components: { Breadcrumb, Editor, Modal, InputField, Dropdown, Notification},
+    components: { Breadcrumb, Editor, Modal, InputField, Dropdown, Notification, myButton},
     data(){
         return {
             breadCrumbOptions: [
@@ -98,21 +102,30 @@ export default {
             editorValue: {},
             fileName: '',
             user: '',
+            userObject: {},
             isValidName: false,
             currentFile: {},
             showNotification: false,
-            messageNotification: ''
+            messageNotification: '',
+            showSharedModal: false,
+            email: '',
+            isValidEmail: false,
+            validationMessage: '',
+            isLoading: false
         }
     },
     mounted(){
         client.authenticate().then(r => {
             this.user = window.localStorage.getItem('x_code_id');
+            client.service('users').get(this.user).then(r =>{
+                this.userObject = r;
+            })
             if(!_.isUndefined(this.$route.params.file_id) && !_.isEmpty(this.$route.params.file_id)){
                 client.service('archivos').get(this.$route.params.file_id).then(response => {
                     this.currentFile = response;
                     this.valueEditor = {
                         value: this.currentFile.texto,
-                        extension: this.currentFile.tipo_archivo.name
+                        extension: this.currentFile.tipo_archivo.extension || '.' + this.currentFile.tipo_archivo.name
                     };
                     this.breadCrumbOptions[1].text = this.currentFile.nombre;
                 });
@@ -127,6 +140,15 @@ export default {
                 this.showModal = true;
             else 
                 this.saveFile();
+        },
+        showShareModal(){
+            if(!_.isEmpty(this.currentFile))
+                this.showSharedModal = true;
+            else {
+                this.messageNotification = 'Primero debe guardar el archivo';
+                this.showNotification = true;
+                setTimeout(()=>{this.showNotification = false}, 1500);
+            }
         },
         editorHandler(event){
             this.editorValue = event;
@@ -162,10 +184,58 @@ export default {
             }
         },
         downloadFile(){
-            let extension = this.currentFile.tipo_archivo.extension || this.currentFile.nombre;
-            let fileName = this.currentFile.nombre + (extension.includes('.')? extension: '.' + extension);
+            let extension = this.editorValue.extension;
+            let fileName = this.currentFile.nombre + extension;
             let blob = new Blob([this.currentFile.texto], {type: 'text/plain;charset=utf-8'});
             FileSaver.saveAs(blob, fileName);
+        },
+        shareFile(){
+            this.isLoading = true;
+            if(this.validateEmail(this.email)){
+                if(this.email == this.userObject.email){
+                    this.validationMessage = 'No se puede compartir un archivo consigo mismo';
+                    this.isLoading = false;
+                    this.isValidEmail = true;
+                } else {
+                    client.service('users').find({query: {email: this.email}}).then(r => {
+                        if(r.total == 0){
+                            this.validationMessage = 'No se ha encontrado el usuario con este correo';
+                            this.isLoading = false;
+                            this.isValidEmail = true;
+                        } else {
+                            let idUserInvited = r.data[0]._id;
+                            client.service('archivos_compartidos_usuario').find({query: {
+                                id_archivo: this.$route.params.file_id,
+                                id_usuario: idUserInvited,
+                            }}).then(res => {
+                                if(res.total != 0){
+                                    this.validationMessage = 'El archivo ya fue compartido con este usuario';
+                                    this.isLoading = false;
+                                    this.isValidEmail = true;
+                                } else {
+                                    client.service('archivos_compartidos_usuario').create({
+                                        id_archivo: this.$route.params.file_id,
+                                        id_usuario: idUserInvited,
+                                        compartido: new Date()
+                                    }).then(r => {
+                                        this.email = '';
+                                        this.showSharedModal = false;
+                                        console.log(r);
+                                    })
+                                }
+                            });
+                        }
+                    }).catch(console.log);
+                }
+            } else {
+                this.validationMessage = 'No ha ingresado un correo válido';
+                this.isValidEmail = true;
+                this.isLoading = false;
+            }
+        },
+        validateEmail(email) {
+            var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            return re.test(String(email).toLowerCase());
         }
     }
 }

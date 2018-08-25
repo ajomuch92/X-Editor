@@ -7,6 +7,7 @@
                 <div>
                     <h1 class="title">Conoce una nueva forma de codificar</h1>
                     <h2 class="subtitle">Fácil de usar, mantener e implementar</h2>
+                    <img class="logo" src="../assets/logo.png">
                 </div>
             </div>
           </SliderItem>
@@ -99,5 +100,9 @@ export default {
     .navbar-menu{
         position: absolute;
         right: 0px;
+    }
+    .logo{
+        height: 128px;
+        /* width: 64px; */
     }
 </style>

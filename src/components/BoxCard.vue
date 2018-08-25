@@ -66,5 +66,7 @@ export default {
 <style scoped>
     .box{
         margin: 3px;
+        width: 340px;
+        height: 150px;
     }
 </style>

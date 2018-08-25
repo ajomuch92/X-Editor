@@ -14,8 +14,8 @@
             </div>
             <div :class="'field is-grouped ' + setButtonAlign">
                 <div class="control">
-                    <button class="button is-link" @click="acceptForm($event)">{{acceptButtonTitle}}</button>
-                    <!-- <div class="accept-button" @click="acceptForm($event)">{{acceptButtonTitle}}</div> -->
+                    <!-- <button class="button is-link" @click="acceptForm($event)">{{acceptButtonTitle}}</button> -->
+                    <myButton type="is-link" :is-loading="isLoading" @click="acceptForm($event)">{{acceptButtonTitle}}</myButton>
                 </div>
                 <div class="control" v-if="isCancelable">
                     <button class="button is-text">Cancel</button>
@@ -33,12 +33,13 @@ import InputSelect from './InputSelect';
 import InputTextArea from './InputTextArea';
 import RadioButton from './RadioButton';
 import RadioOption from './RadioOption';
+import myButton from './MyButton'
 import Vue from 'vue';
 import _ from 'lodash';
 
 export default {
     name: 'FormBuilder',
-    components: { CheckBox, InputField, InputFile, InputSelect, InputTextArea, RadioButton, RadioOption},
+    components: { CheckBox, InputField, InputFile, InputSelect, InputTextArea, RadioButton, RadioOption, myButton},
     props: {
         title: {
             type: String,
@@ -61,6 +62,10 @@ export default {
             default: 'Center'
         },
         cleanFields: {
+            type: Boolean,
+            default: false
+        },
+        isLoading: {
             type: Boolean,
             default: false
         }
@@ -89,7 +94,7 @@ export default {
     },
     methods: {
         acceptForm(event){
-            event.preventDefault();
+            // event.preventDefault();
             this.setDefaultErrorValues();
             if(this.validateFields()){
                 let fields = _.map(this.fields, field => {
