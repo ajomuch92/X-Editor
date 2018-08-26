@@ -208,7 +208,7 @@ export default {
                                 id_archivo: this.$route.params.file_id,
                                 id_usuario: idUserInvited,
                             }}).then(res => {
-                                if(res.total != 0){
+                                if(!_.isEmpty(res)){
                                     this.validationMessage = 'El archivo ya fue compartido con este usuario';
                                     this.isLoading = false;
                                     this.isValidEmail = true;

@@ -14,8 +14,8 @@
             </div>
             <div :class="'field is-grouped ' + setButtonAlign">
                 <div class="control">
-                    <!-- <button class="button is-link" @click="acceptForm($event)">{{acceptButtonTitle}}</button> -->
-                    <myButton type="is-link" :is-loading="isLoading" @click="acceptForm($event)">{{acceptButtonTitle}}</myButton>
+                    <button class="button is-link" :class="{'is-loading':isLoading}" @click="acceptForm($event)">{{acceptButtonTitle}}</button>
+                    <!-- <myButton type="is-link" :is-loading="isLoading" @click="acceptForm($event)">{{acceptButtonTitle}}</myButton> -->
                 </div>
                 <div class="control" v-if="isCancelable">
                     <button class="button is-text">Cancel</button>
@@ -94,7 +94,7 @@ export default {
     },
     methods: {
         acceptForm(event){
-            // event.preventDefault();
+            event.preventDefault();
             this.setDefaultErrorValues();
             if(this.validateFields()){
                 let fields = _.map(this.fields, field => {
@@ -115,8 +115,10 @@ export default {
                     Vue.set(this.fields[i],'isError', true);
                 } else if(this.fields[i].isRequired && this.fields[i].regex){
                     var re = new RegExp(this.fields[i].regex,"igm");
-                    isValidate = re.test(this.fields[i].value);
-                    Vue.set(this.fields[i],'isError', !isValidate);
+                    let validate = re.test(this.fields[i].value);
+                    if(!validate)
+                        isValidate = false;
+                    Vue.set(this.fields[i],'isError', !validate);
                 }
             }
             return isValidate;
